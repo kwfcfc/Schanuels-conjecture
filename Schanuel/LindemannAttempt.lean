@@ -16,7 +16,9 @@ minimal polynomial and specialize `LindemannWeierstrass.exp_polynomial_approx` a
 The resulting estimate is the analytic half of the classical proof.  Finishing the argument
 would require the missing arithmetic half: under the contrary assumption that `exp z` is
 algebraic, take suitable conjugates/norms and derive a nonzero integer of absolute value less
-than one.  No such missing step is postulated here.
+than one.  This file carries out that endpoint completely for nonzero rational `z`, where all
+polynomial evaluations can be kept in `ℤ`.  The Galois/integrality step for an arbitrary
+algebraic `z` is not postulated here.
 -/
 
 namespace Schanuel.LindemannAttempt
@@ -309,6 +311,147 @@ theorem exists_prime_of_eventually {P : ℕ → Prop}
   obtain ⟨N, hN⟩ := hP
   obtain ⟨p, hNp, hp⟩ := Nat.exists_infinite_primes N
   exact ⟨p, hp, hN p hNp⟩
+
+/-- The analytic approximation theorem already suffices to prove the transcendence of `exp m`
+for every nonzero integer `m`.  In this case no Galois descent is needed: all exponents `k * m`
+in a hypothetical integral relation are integers, so the weighted sum of the integer-polynomial
+evaluations `gₚ(k * m)` is itself an integer.
+
+The proof constructs an integer
+
+`D = nₚ * q(0) + p * ∑ k, qₖ * gₚ(k * m)`.
+
+It is nonzero modulo `p`, while the simultaneous analytic estimates and the assumed exponential
+relation force `|D| < 1`, a contradiction. -/
+theorem exp_intCast_transcendental (m : ℤ) (hm : m ≠ 0) :
+    Transcendental ℚ (Complex.exp (m : ℂ)) := by
+  intro hexp
+  have hzalg : IsAlgebraic ℚ (m : ℂ) := by
+    exact isAlgebraic_algebraMap (R := ℚ) (A := ℂ) (m : ℚ)
+  have hz0 : (m : ℂ) ≠ 0 := by exact_mod_cast hm
+  obtain ⟨q, hq0, hrel⟩ :=
+    normalized_integral_exp_relation_of_isAlgebraic hexp
+  obtain ⟨f, c, -, -, hroots, happrox⟩ :=
+    hasLindemannApproximants_nonconstantExponents q hzalg hz0
+  let weight : ℝ :=
+    ∑ k ∈ q.support.erase 0, ‖(q.coeff k : ℂ)‖
+  have hevent : ∀ᶠ p : ℕ in Filter.atTop,
+      (f.eval 0).natAbs < p ∧ (q.eval 0).natAbs < p ∧
+        weight * |c| ^ p / (p - 1).factorial < 1 := by
+    filter_upwards [Filter.eventually_gt_atTop (f.eval 0).natAbs,
+      Filter.eventually_gt_atTop (q.eval 0).natAbs,
+      eventually_scaled_pow_div_factorial_pred_lt_one weight |c|] with p hp_f hp_q hp_small
+    exact ⟨hp_f, hp_q, hp_small⟩
+  obtain ⟨p, hp, hp_f, hp_q, hp_small⟩ := exists_prime_of_eventually hevent
+  obtain ⟨n, hn, gp, -, happ⟩ := happrox p hp_f hp
+  let B : ℤ :=
+    ∑ k ∈ q.support.erase 0, q.coeff k * gp.eval ((k : ℤ) * m)
+  have hB :
+      ∑ k ∈ q.support.erase 0,
+          (q.coeff k : ℂ) * aeval ((k : ℂ) * (m : ℂ)) gp = (B : ℂ) := by
+    simp only [B, Int.cast_sum, Int.cast_mul]
+    apply Finset.sum_congr rfl
+    intro k _
+    congr 1
+    rw [show (k : ℂ) * (m : ℂ) = (((k : ℤ) * m : ℤ) : ℂ) by
+      push_cast
+      rfl]
+    rw [aeval_def]
+    exact eval₂_at_apply _ _
+  have hcpow (p : ℕ) : c ^ p ≤ |c| ^ p := by
+    rw [← abs_pow]
+    exact le_abs_self _
+  have hterm (k : ℕ) (hk : k ∈ q.support.erase 0) :
+      ‖(q.coeff k : ℂ) *
+          (n • Complex.exp ((k : ℂ) * (m : ℂ)) -
+            p • aeval ((k : ℂ) * (m : ℂ)) gp)‖ ≤
+        ‖(q.coeff k : ℂ)‖ * (|c| ^ p / (p - 1).factorial) := by
+    rw [norm_mul]
+    gcongr
+    refine (happ (hroots _ ?_)).trans ?_
+    · exact Finset.mem_image.mpr ⟨k, hk, rfl⟩
+    · exact div_le_div_of_nonneg_right (hcpow p) (Nat.cast_nonneg _)
+  let E : ℂ :=
+    ∑ k ∈ q.support.erase 0,
+      (q.coeff k : ℂ) *
+        (n • Complex.exp ((k : ℂ) * (m : ℂ)) -
+          p • aeval ((k : ℂ) * (m : ℂ)) gp)
+  have hEnorm : ‖E‖ ≤ weight * |c| ^ p / (p - 1).factorial := by
+    calc
+      ‖E‖ ≤ ∑ k ∈ q.support.erase 0,
+          ‖(q.coeff k : ℂ)‖ * (|c| ^ p / (p - 1).factorial) := by
+            exact norm_sum_le_of_le _ hterm
+      _ = weight * (|c| ^ p / (p - 1).factorial) := by
+            rw [Finset.sum_mul]
+      _ = weight * |c| ^ p / (p - 1).factorial := by ring
+  have hexpsum :
+      ∑ k ∈ q.support.erase 0,
+          (q.coeff k : ℂ) * Complex.exp ((k : ℂ) * (m : ℂ)) =
+        -((q.eval (0 : ℤ) : ℤ) : ℂ) := by
+    linear_combination hrel
+  let D : ℤ := n * q.eval 0 + (p : ℤ) * B
+  have hE : E = -(D : ℂ) := by
+    dsimp only [E]
+    simp_rw [zsmul_eq_mul, nsmul_eq_mul, mul_sub]
+    rw [Finset.sum_sub_distrib]
+    calc
+      (∑ k ∈ q.support.erase 0,
+          (q.coeff k : ℂ) * ((n : ℂ) *
+            Complex.exp ((k : ℂ) * (m : ℂ)))) -
+          ∑ k ∈ q.support.erase 0,
+            (q.coeff k : ℂ) * ((p : ℂ) *
+              aeval ((k : ℂ) * (m : ℂ)) gp) =
+        (n : ℂ) *
+            (∑ k ∈ q.support.erase 0,
+              (q.coeff k : ℂ) * Complex.exp ((k : ℂ) * (m : ℂ))) -
+          (p : ℂ) *
+            (∑ k ∈ q.support.erase 0,
+              (q.coeff k : ℂ) * aeval ((k : ℂ) * (m : ℂ)) gp) := by
+                congr 1 <;> rw [Finset.mul_sum] <;>
+                  apply Finset.sum_congr rfl <;> intro k hk <;> ring
+      _ = -(D : ℂ) := by rw [hexpsum, hB]; dsimp only [D]; push_cast; ring
+  have hD : D ≠ 0 := by
+    intro hD0
+    have hp_dvd : (p : ℤ) ∣ n * q.eval 0 := by
+      refine ⟨-B, ?_⟩
+      dsimp only [D] at hD0
+      linear_combination hD0
+    rcases Int.Prime.dvd_mul hp hp_dvd with hn' | hq'
+    · exact hn ((Int.natCast_dvd).2 hn')
+    · have hle : p ≤ (q.eval 0).natAbs :=
+        Nat.le_of_dvd (Int.natAbs_pos.mpr hq0) hq'
+      omega
+  have hDnorm : (1 : ℝ) ≤ ‖(D : ℂ)‖ := by
+    rw [Complex.norm_intCast]
+    exact_mod_cast Int.one_le_abs hD
+  rw [hE, norm_neg] at hEnorm
+  exact (not_lt_of_ge (hDnorm.trans hEnorm)) hp_small
+
+/-- The exponential of every nonzero rational number is transcendental.  Raising a hypothetical
+algebraic value `exp x` to the positive denominator of `x` would make `exp x.num` algebraic,
+contradicting `exp_intCast_transcendental`. -/
+theorem exp_ratCast_transcendental (x : ℚ) (hx : x ≠ 0) :
+    Transcendental ℚ (Complex.exp (x : ℂ)) := by
+  intro hexp
+  have hmul : (x.den : ℚ) * x = x.num := by
+    have hden : (x.den : ℚ) ≠ 0 := by exact_mod_cast x.den_nz
+    have hnum : (x.num : ℚ) = x * x.den :=
+      (div_eq_iff hden).mp x.num_div_den
+    calc
+      (x.den : ℚ) * x = x * x.den := mul_comm _ _
+      _ = x.num := hnum.symm
+  have halgNum : IsAlgebraic ℚ (Complex.exp (x.num : ℂ)) := by
+    rw [show Complex.exp (x.num : ℂ) = Complex.exp (x : ℂ) ^ x.den by
+      rw [← Complex.exp_nat_mul]
+      congr 1
+      exact_mod_cast hmul.symm]
+    exact hexp.pow x.den
+  exact (exp_intCast_transcendental x.num (Rat.num_ne_zero.mpr hx)) halgNum
+
+/-- Schanuel's one-variable bound holds unconditionally at every nonzero rational input. -/
+theorem bound_singleton_ratCast (x : ℚ) (hx : x ≠ 0) :
+    Bound (singletonFamily (x : ℂ)) :=
+  bound_singleton_of_exp_transcendental (exp_ratCast_transcendental x hx)
 
 /-- The missing arithmetic step therefore implies Schanuel's one-dimensional bound. -/
 theorem schanuel_one_of_arithmeticStep (harith : LindemannArithmeticStep)

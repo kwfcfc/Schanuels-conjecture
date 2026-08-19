@@ -1,7 +1,9 @@
 # Schanuel's conjecture: a Lean 4 boundary formalization
 
 For a detailed account of the proof strategy, checked progress, precise missing mathematics, and
-next formalization steps, see [`PROGRESS.md`](./PROGRESS.md).
+next formalization steps, see [`PROGRESS.md`](./PROGRESS.md). For a literature survey of prior
+formalizations elsewhere, the techniques they use, and concrete guidance on the remaining gap, see
+[`SURVEY.md`](./SURVEY.md).
 
 [`Schanuel.lean`](./Schanuel.lean) states the standard finite-family form of Schanuel's
 conjecture using Mathlib's complex exponential, intermediate fields, linear independence, and
@@ -20,7 +22,9 @@ The checked results prove:
 - that a linearly independent `Fin n` family has rational span of `finrank n`;
 - the exact one-variable characterization
   `Bound [z] ↔ Transcendental ℚ z ∨ Transcendental ℚ (exp z)`;
-- that the one-dimensional Schanuel statement is equivalent to Hermite--Lindemann.
+- that the one-dimensional Schanuel statement is equivalent to Hermite--Lindemann;
+- the transcendence of `exp x` for every nonzero integer or rational `x`, and hence the
+  one-variable Schanuel bound at every nonzero rational input.
 
 [`Schanuel/Structural.lean`](./Schanuel/Structural.lean) sharpens the numerical bound to a finite
 selection problem: `Bound z` holds exactly when `n` algebraically independent elements can be
@@ -33,7 +37,9 @@ proof into Mathlib's existing `LindemannWeierstrass.exp_polynomial_approx`. It f
 - clears denominators in minimal polynomials;
 - obtains simultaneous prime-indexed approximations for the relevant algebraic exponents;
 - extracts the integral exponential relation that would follow if `exp z` were algebraic;
-- proves the needed factorial decay and prime-selection endpoint lemmas.
+- proves the needed factorial decay and prime-selection endpoint lemmas;
+- completes the modular/analytic contradiction for nonzero integer exponents, then deduces the
+  nonzero rational case by clearing the denominator.
 
 The remaining arithmetic argument is packaged as `LindemannArithmeticStep`. Its intended proof is
 the classical Galois/integrality argument: first construct the correct Galois-symmetric auxiliary

@@ -12,11 +12,13 @@ What has been achieved is a checked formal boundary around the problem:
 3. its transcendence-degree bound is converted into an exact finite-selection problem;
 4. the one-dimensional case is proved equivalent to Hermite--Lindemann;
 5. the one-dimensional proof is pushed through Mathlib's existing analytic Lindemann estimate;
-6. the remaining arithmetic/Galois argument is isolated explicitly.
+6. the modular/analytic endpoint is completed for every nonzero rational exponent;
+7. the remaining Galois argument for arbitrary algebraic exponents is isolated explicitly.
 
-The last item is still substantial. Lean proves that `LindemannArithmeticStep` is **equivalent**
-to Hermite--Lindemann, so it packages the entire missing arithmetic nonvanishing theorem; it is
-not a minor cleanup lemma.
+The last item is still substantial. Lean proves that the unrestricted
+`LindemannArithmeticStep` is **equivalent** to Hermite--Lindemann, so it packages the remaining
+nonvanishing theorem for arbitrary algebraic exponents; it is not a minor cleanup lemma. The
+rational case is now discharged without this hypothesis.
 
 ## 1. The statement being formalized
 
@@ -102,6 +104,8 @@ proof.
 | One-variable bound iff `z` or `exp z` is transcendental | Proved equivalence | `Schanuel.lean` |
 | One-dimensional Schanuel iff Hermite--Lindemann | Proved equivalence | `Schanuel.lean` |
 | Integral normalization and simultaneous analytic approximants | Proved | `Schanuel/LindemannAttempt.lean` |
+| `exp x` is transcendental for every nonzero integer or rational `x` | Proved unconditionally | `Schanuel/LindemannAttempt.lean` |
+| One-variable Schanuel for every nonzero rational input | Proved unconditionally | `Schanuel/LindemannAttempt.lean` |
 | Named arithmetic step iff Hermite--Lindemann | Proved equivalence; neither side is proved | `Schanuel/LindemannAttempt.lean` |
 | Missing arithmetic step implies the one-variable bound | Proved implication | `Schanuel/LindemannAttempt.lean` |
 
@@ -252,9 +256,29 @@ The development also proves that any fixed multiple of `c^p/(p-1)!` is eventuall
 and that an eventual condition on natural numbers can be met by a prime. Thus the factorial-decay
 and arbitrarily-large-prime endpoints are already available.
 
+### Step 6: close the integer and rational cases
+
+When `z = m` is a nonzero integer, the exponents `k m` in the integral exponential relation are
+integers. Consequently every `gₚ(k m)` is an integer, so no number field, scaling factor, trace,
+or Galois descent is needed. The checked proof defines
+
+\[
+  D_p = n_p q(0) + p\sum_k q_k g_p(km) \in \mathbb Z.
+\]
+
+For a prime larger than `|q(0)|`, the facts `p ∤ nₚ` and `q(0) ≠ 0` show that `Dₚ` is
+nonzero modulo `p`. Rewriting it with the assumed exponential relation expresses `Dₚ` as a
+weighted sum of approximation errors. Factorial decay then gives `|Dₚ| < 1`, contradicting
+that `Dₚ` is a nonzero integer. This proves `exp_intCast_transcendental`.
+
+For a nonzero rational `x = a / b`, algebraicity of `exp x` would imply algebraicity of
+`(exp x)^b = exp a`, contradicting the integer result. This proves
+`exp_ratCast_transcendental` and, through the existing singleton criterion,
+`bound_singleton_ratCast`.
+
 ## 5. What remains unproved
 
-### 5.1 The arithmetic/Galois half of Hermite--Lindemann
+### 5.1 The Galois half of Hermite--Lindemann beyond rational inputs
 
 The explicit gap is `LindemannArithmeticStep`. Given the relation above and the simultaneous
 approximants, it asserts that the left-hand side of the relation cannot be zero.
@@ -268,6 +292,11 @@ This definition is intentionally exposed as a hypothesis, but it should be asses
 - rationality plus integrality has not yet been converted into an ordinary integer;
 - nonvanishing modulo `p` has not yet been proved;
 - the conjugate-wise analytic bounds have not yet been assembled into an absolute-value bound.
+
+The rational case now demonstrates that the modular and analytic endpoint closes once the
+polynomial-evaluation sum is an ordinary integer. For a general algebraic exponent, constructing
+such an integral Galois-symmetric quantity (or a norm with controlled conjugates) remains the
+essential missing task.
 
 Consequently, `LindemannArithmeticStep` packages essentially the whole remaining arithmetic half
 of Hermite--Lindemann. In fact, the file proves the exact equivalence
