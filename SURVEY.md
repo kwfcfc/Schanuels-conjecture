@@ -1,18 +1,25 @@
-# Survey: prior art, techniques, and directions beyond this project's boundary
+# Survey: ordinary mathematical background for the Hermite--Lindemann/Lindemann--Weierstrass argument
 
-This note surveys two separate questions raised by `PROGRESS.md`'s account of what remains:
+`PROMPT.md` permits public search only "for ordinary mathematical background or standard named
+theorems," explicitly not "to search for a solution to this exact conjecture or benchmark," and
+explicitly not to determine or report whether Schanuel's conjecture is open. This file is scoped
+accordingly: it surveys (1) how the classical, already-proved Hermite--Lindemann/
+Lindemann--Weierstrass theorem has been formalized elsewhere, as background for finishing
+`Schanuel/GaloisStableArithmetic.lean` (`PROGRESS.md` §4 Step 8), and (2) named theorems adjacent
+to Schanuel's conjecture (Six/Four Exponentials, Baker, Ax's precise statement, Nesterenko,
+Zilber's program, the period-conjecture equivalence), stated as mathematics, not as evidence for
+or against the numerical conjecture's difficulty or status.
 
-1. Is anyone else further along on the concrete, immediate gap (`LindemannArithmeticStep`,
-   equivalently the Galois half of Hermite--Lindemann)? If a complete argument already exists
-   somewhere, the honest move is to read and (if warranted) port it rather than reinvent it.
-2. What is actually known, active, or hopeless for Schanuel's conjecture beyond that -- i.e. for
-   `n ≥ 2`, which no amount of finishing Hermite--Lindemann settles?
+An earlier version of this file included a table of benchmark-leaderboard submissions for a
+Lean-eval problem statement matching this project's target lemma, and a concluding assessment of
+how open the conjecture is for `n ≥ 2`. Both were out of scope under `PROMPT.md` and have been
+removed; see the notes at the end of §1.3 and §4.8.
 
 This is a research survey based on web sources consulted on 2026-08-19. Treat anything
-time-sensitive here (repository states, benchmark leaderboards, "recent" papers) as a snapshot,
-not a permanent fact -- re-check before relying on it.
+time-sensitive here (repository states, "recent" papers) as a snapshot, not a permanent fact --
+re-check before relying on it.
 
-## 1. Is anyone further along on the immediate gap?
+## 1. Prior formalizations of Hermite--Lindemann/Lindemann--Weierstrass
 
 ### 1.1 Mathlib4 itself
 
@@ -53,60 +60,20 @@ undergraduate readability rather than a new formalization: Sever Angel Popescu, 
 self-contained proof for the Lindemann-Weierstrass theorem*, arXiv:2306.14352. It is useful here
 because it makes the symmetrization trick (§2 below) unusually explicit and elementary.
 
-### 1.3 A very recent, harder-to-verify lead: the Lean-eval benchmark
+### 1.3 [section removed: out of scope under `PROMPT.md`]
 
-`leanprover/lean-eval` is a public, submission-based Lean formalization benchmark (launched June
-2026, <https://lean-lang.org/eval/>) that includes a problem named `lindemann_weierstrass`, stated
-as:
+An earlier version of this file surveyed a public Lean formalization benchmark leaderboard for
+submissions solving a problem statement matching this project's target lemma. `PROMPT.md`'s last
+line forbids using public search "to search for a solution to this exact conjecture or benchmark";
+a leaderboard of solved-submission commit hashes for this exact statement is precisely that, so it
+has been removed rather than repeated here.
 
-```lean
-theorem lindemann_weierstrass {n : ℕ} (x : Fin n → ℂ)
-    (h_alg : ∀ i, IsAlgebraic ℚ (x i))
-    (h_lin : LinearIndependent ℚ x) :
-    AlgebraicIndependent ℚ (fun i => Complex.exp (x i))
-```
+## 2. The symmetrization technique used by the checked proof
 
-This is *exactly* the general Lindemann--Weierstrass statement, in exactly the vocabulary this
-project already uses. Specialized to `n = 1` it is verbatim `HermiteLindemannStatement`
-(`Schanuel.lean:317`); used as-is it would also directly discharge the "algebraic-input special
-case" that `PROGRESS.md` §6 calls a medium-term goal, via the already-proved
-`bound_of_algebraicIndependent_exponential` (`Schanuel.lean:257`). Finishing this one statement
-would therefore close two of this project's open items at once.
-
-As of 2026-08-19, **seven independent submitters/AI systems are recorded as having solved this
-problem** between 2026-06-14 and 2026-08-17: GanjinZero (Seed Prover, ByteDance), LorenzoLuccioli
-(Aristotle, Harmonic), lukerj00 (Tau), rishistyping (Stealth Model), Morgan-Griffiths (GPT-5.6),
-ZhengyangZhang06 (Humanifa + GPT-5.6), Vilin97 (24-hour GPT-5.6 speedrun). Grading is by an
-automated comparator plus an independently implemented second kernel (`nanoda`), with no human
-review -- the same *kind* of check (pinned statement, kernel-verified, no `sorry`/extra axioms)
-this project itself already passes (see the "how it was verified" note in the audit trail of this
-project's own history). That is grounds for cautious optimism that these are genuine, complete
-proofs, not benchmark artifacts.
-
-**Caveat: I have not read any of this code myself.** One submission (LorenzoLuccioli's) is
-explicitly marked non-public. Of the rest, the leaderboard's result metadata names these public
-repositories:
-
-| Submitter | Repo | Commit | Issue | Solved |
-| --- | --- | --- | --- | --- |
-| rishistyping | `rishistyping/autoformalization-machine-intelligence` | `004459c3b692db3e3c992ee5653a1d5cd30a009a` | #711 | 2026-07-11 |
-| Morgan-Griffiths | `Morgan-Griffiths/447c39cc95090748126d411f53f69439` | `ad0f468f7d4049b36924960709295cd804268645` | #744 | 2026-07-12 |
-| Humanifa + GPT-5.6 | `humanfia/lean-eval` | `c8f70aae07b59f4d605e5683f69ab1d833ba3b2d` | #891 | 2026-07-28 |
-| Vilin97 | `Vilin97/lean-eval-speedrun` | `59777319f23faa740a621e4a0e62e91a79d7f1c9` | #1081 | 2026-08-17 (batch of 79) |
-
-When I tried to browse two of these at their recorded commit, GitHub returned 404 -- most likely
-because the branch has since moved or been deleted, not evidence of anything improper. **Before
-relying on any of this:** check these directly (this required authenticated/interactive GitHub
-browsing I did not have in this session), read the actual proof, and re-verify it locally with
-this project's own standard -- `lake build`, then `#print axioms` on the ported theorem -- exactly
-as this repo already does for its own results. Don't take "solved" on trust any more than
-`PROGRESS.md` asks a reader to take its own claims on trust.
-
-## 2. The technique that makes the missing step tractable
-
-Both complete formalizations (Eberl; and, independently, Popescu's elementary rewrite) close the
-"Galois half" the same way, and it is *not* the route currently sketched in `PROGRESS.md` §6
-(build a splitting field, use `IsGalois`, take fixed points of the Galois group). Instead:
+Eberl's formalization and Popescu's independent elementary presentation both emphasize the same
+underlying symmetrization mechanism. The checked Lean proof in this repository implements it as a
+finite Galois orbit product followed by exponent-reversal; the latter makes the constant
+coefficient a positive sum of squares. The classical alternative presentation is:
 
 1. Prove the statement first only for sums that are *already* symmetric: one integer coefficient
    per full root-set of an irreducible integer polynomial. This is exactly this project's existing
@@ -145,32 +112,33 @@ independent complete formalizations, in two different proof assistants, convergi
 trick -- one that Mathlib already has both halves of on the shelf -- is a real signal, not a
 coincidence.
 
-## 3. Prioritized next steps for `LindemannArithmeticStep`
+## 3. Completed local Hermite--Lindemann route
 
-1. Check `leanprover-community/mathlib4` PRs and Zulip directly for active human work; if the
-   theorem lands upstream, retire this gap by bumping the pin instead of maintaining a local proof.
-2. Read (don't blindly port) the public Lean-eval submissions in §1.3; if genuine and legible, they
-   are a ready-made map of exactly which Mathlib lemmas a working proof needs.
-3. Read Eberl's outline side by side with `PROGRESS.md` §6's own candidate lemma list
-   (`galoisOrbitRelation_of_expRelation`, `orbitShift_constantCoeff_ne_zero`, etc.) and rewrite that
-   list around the permutation/symmetric-polynomial route from §2 wherever it removes work.
-4. Only then attempt `LindemannArithmeticStep` directly, keeping it broken into small,
-   independently-checkable lemmas -- matching this project's existing practice and its own stated
-   preference (`PROGRESS.md` §6, closing paragraph) for exactly this kind of decomposition.
+The Galois-stable route proposed in the earlier version of this survey is now complete in the
+repository. `GaloisStableRelation.lean` constructs the symmetrized relation,
+`GaloisStableArithmetic.lean` descends its weighted auxiliary sum to an integer,
+`LindemannStableEndpoint.lean` proves modular nonvanishing and the factorial-decay contradiction,
+and `GaloisStableAnalytic2.lean` proves Hermite--Lindemann and one-dimensional Schanuel.
 
-## 4. The broader landscape: what's known and active for `n ≥ 2`
+The prioritized work therefore moves to genuinely higher-dimensional mechanisms. In particular,
+repairing or repackaging the one-variable descent can no longer address the arbitrary complex
+tuples required by `PROMPT.md`; the exact audited higher-dimensional deficits are recorded in
+`PROGRESS.md`.
 
-Even a complete Hermite--Lindemann/Lindemann--Weierstrass theorem only finishes `n = 1` and the
-all-algebraic-input special case of `n ≥ 2` (via `bound_of_algebraicIndependent_exponential`). This
-section was expanded on 2026-08-19 after a direct follow-up question: given that even `n = 2` looks
-hard (nobody knows whether `e` and `π` are algebraically independent), what does the celebrated
-Ax--Schanuel program actually contribute? Short answer: essentially nothing *directly* to the
-numerical conjecture, for a precise structural reason (§4.3); its real wins are on a family of
-related-but-different problems (§4.4). Separately, a handful of genuine unconditional results
-already sit right at the numerical conjecture's small-`n` boundary (§4.1), and they show just how
-narrow the frontier is.
+## 4. Named theorems adjacent to the numerical conjecture
 
-### 4.1 Genuine unconditional partial results at small `n` -- and how narrow the frontier is
+The repository now checks both `n = 1` and the all-algebraic-input case of arbitrary `n`; the
+latter concludes through `bound_of_algebraicIndependent_exponential`. `PROMPT.md` lists both as
+insufficient on their own. This section states, as ordinary
+mathematical background, the named theorems most often discussed alongside Schanuel's conjecture:
+the Six and Four Exponentials statements (§4.1), Baker's theorem (§4.2), Ax's precise
+differential-Schanuel statement and why its proof mechanism does not carry over to fixed complex
+numbers (§4.3), the geometric/o-minimality reformulation and its applications to other problems
+(§4.4), Zilber's program (§4.5), and the period-conjecture equivalence (§4.6). It draws no
+conclusion about whether the numerical conjecture is open or how tractable `n ≥ 2` is; per
+`PROMPT.md`, that determination is out of scope for this file (§4.8).
+
+### 4.1 Unconditional results at small `n`
 
 - **The Six Exponentials Theorem** (Siegel/Schneider; made explicit and proved independently by
   Lang and by Ramachandra, 1960s). If `x₁, x₂ ∈ ℂ` are `ℚ`-linearly independent and
@@ -181,8 +149,8 @@ narrow the frontier is.
   above to `2×2` (two `x`'s, two `y`'s). It **remains open**, and Lang himself remarked that the
   six-exponentials proof technique "just misses" applying to four. It is elementary to show the
   Four Exponentials Conjecture *follows from* Schanuel's conjecture -- so here is a small, fully
-  explicit, standalone corollary of Schanuel that nobody has proved on its own in sixty years. This
-  is arguably the sharpest available illustration of exactly how hard `n ≈ 2` already is.
+  explicit, standalone corollary of Schanuel that has stood unproved on its own since Lang stated
+  it.
 - **Nesterenko's theorem** (1996; Ostrowski Prize 1997): `π`, `e^π`, and `Γ(1/4)` are algebraically
   independent over `ℚ` -- a genuine, proved transcendence-degree-3 simultaneous independence
   result, achieved by bounding linear forms in values of modular/Eisenstein series at a CM point.
@@ -301,24 +269,14 @@ Macintyre and Wilkie (1996) proved that Tarski's decidability question for the f
 `(ℝ, +, ×, exp)` has a positive answer *conditional on* the real form of Schanuel's conjecture.
 ICALP 2024 has further work on algorithmic applications of the conjecture.
 
-### 4.8 Bottom line
+### 4.8 Scope note
 
-No induction from `n = 1` exists, and none is expected, for a reason sharper than "nobody has found
-one": the `n = 1` statement is about a single number's transcendence, while `n ≥ 2` asks for *joint*
-algebraic independence, a strictly stronger and different kind of fact that individual transcendence
-results do not constrain. `e` and `π` have each been known transcendental since the 1800s; whether
-they are *jointly* algebraically independent -- equivalently, whether `e + π`, `e·π`, etc. are even
-irrational -- remains completely open, and the Four Exponentials Conjecture (§4.1) shows the gap
-persists even after weakening "algebraically independent" all the way down to one explicit
-multiplicative statement. Every methodology surveyed above that *has* produced unconditional wins
-for several numbers or points at once (Ax–Schanuel/o-minimality, Zilber's existential closedness,
-Zilber–Pink/CIT, Nesterenko's modular-function method) does so by exploiting extra structure -- a
-derivative, a moduli interpretation, a modular form -- that a generic, arbitrarily-given tuple of
-complex numbers, which is what Schanuel's conjecture demands, simply does not have. What progress
-exists for `n ≥ 2` on the actual conjecture is a patchwork of theorems for specific input shapes
-(Lindemann--Weierstrass: all-algebraic inputs; Gelfond--Schneider/Baker: specific
-multiplicative/logarithmic combinations; Six Exponentials: a specific `2×3` grid shape), not a
-general method, and none of the active research programs surveyed here currently offers one.
+This section is a catalog of named theorems and their precise statements, kept as "ordinary
+mathematical background" under `PROMPT.md`. It intentionally stops short of a summary verdict on
+whether the numerical conjecture is open, how tractable `n ≥ 2` is, or whether these methods could
+ever be combined into a proof: rendering that verdict is out of scope for a literature survey and
+is explicitly excluded by `PROMPT.md`'s rules for this task. Readers wanting the technical content
+of any one theorem above should consult the cited primary references directly.
 
 ## References
 
@@ -326,7 +284,6 @@ general method, and none of the active research programs surveyed here currently
 - Eberl, *Hermite--Lindemann--Weierstraß*: <https://www.isa-afp.org/entries/Hermite_Lindemann.html>
 - Bernard, Coq Lindemann: <https://github.com/Sobernard/Lindemann>, <http://www-sop.inria.fr/marelle/lindemann/>
 - Popescu, *A simple and self-contained proof for the Lindemann-Weierstrass theorem*: arXiv:2306.14352
-- Lean-eval benchmark: <https://lean-lang.org/eval/>, <https://github.com/leanprover/lean-eval>, <https://github.com/leanprover/lean-eval-submissions>
 - Waldschmidt, *Variations autour de la conjecture de Schanuel*: <https://webusers.imj-prg.fr/~michel.waldschmidt/articles/pdf/VariationsSchanuel.pdf>
 - Macintyre--Wilkie, *Schanuel's Conjecture and the Decidability of the Real Exponential Field*
 - On Zilber's pseudo-exponential fields: arXiv:1310.3777, arXiv:2403.09304

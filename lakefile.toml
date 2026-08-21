@@ -16,4 +16,17 @@ rev = "v4.29.1"
 
 [[lean_lib]]
 name = "Schanuel"
-roots = ["Schanuel", "Schanuel.Structural", "Schanuel.LindemannAttempt"]
+roots = ["Schanuel", "Schanuel.Structural", "Schanuel.LindemannAttempt",
+  "Schanuel.LindemannDenominators", "Schanuel.LindemannIntegralReduction",
+  "Schanuel.DistinctFrequencies", "Schanuel.GaloisDescent",
+  "Schanuel.GaloisStableRelation", "Schanuel.GaloisStableArithmetic",
+  "Schanuel.LindemannStableEndpoint", "Schanuel.GaloisStableAnalytic2",
+  "Schanuel.FractionAlgebraicIndependence", "Schanuel.RationalScaling",
+  "Schanuel.AlgebraicInputs", "Schanuel.RelativeDescent",
+  "Schanuel.ConfluentVandermonde", "Schanuel.MixedObstruction",
+  "Schanuel.IteratedExponentialBoundary", "Schanuel.AlgebraicExponentialInputs",
+  "Schanuel.PeriodLogBoundary", "Schanuel.IntegerShear",
+  "Schanuel.TranscendentalReduction", "Schanuel.FullyTranscendentalReduction",
+  "Schanuel.AlgebraicRanks", "Schanuel.RationalBasisInvariance",
+  "Schanuel.ControlledMultipliers", "Schanuel.ControlledMultiplierBridge",
+  "Schanuel.CanonicalHermiteTail", "Schanuel.CanonicalHermiteApproximation"]

@@ -1,59 +1,105 @@
-# Schanuel's conjecture: a Lean 4 boundary formalization
+# Schanuel's conjecture: a Lean 4 formalization in progress
 
-For a detailed account of the proof strategy, checked progress, precise missing mathematics, and
-next formalization steps, see [`PROGRESS.md`](./PROGRESS.md). For a literature survey of prior
-formalizations elsewhere, the techniques they use, and concrete guidance on the remaining gap, see
-[`SURVEY.md`](./SURVEY.md).
+[`PROMPT.md`](./PROMPT.md) is the authoritative target: prove Schanuel's transcendence-degree
+bound for every finite rationally linearly independent complex family. The repository does not
+yet prove `Schanuel.Conjecture`; in particular, the completed one-dimensional argument below is
+not presented as a solution of the full task.
 
-[`Schanuel.lean`](./Schanuel.lean) states the standard finite-family form of Schanuel's
-conjecture using Mathlib's complex exponential, intermediate fields, linear independence, and
-cardinal-valued transcendence degree.
+## Checked results
 
-Schanuel's conjecture is open. Accordingly, `Schanuel.Conjecture` is only a definition of a
-proposition: this project does not add it as an axiom and contains no unproved placeholders.
+- [`Schanuel.lean`](./Schanuel.lean) defines the generated field, `Bound`, and `Conjecture`, and
+  proves the elementary field-theoretic bounds and the equivalence of the one-dimensional case
+  with Hermite--Lindemann.
+- [`Schanuel/Structural.lean`](./Schanuel/Structural.lean) gives the exact finite-selection
+  reformulation using algebraically independent displayed generators.
+- [`Schanuel/LindemannAttempt.lean`](./Schanuel/LindemannAttempt.lean),
+  [`Schanuel/LindemannIntegralReduction.lean`](./Schanuel/LindemannIntegralReduction.lean), and
+  [`Schanuel/LindemannDenominators.lean`](./Schanuel/LindemannDenominators.lean) package Mathlib's
+  analytic approximation theorem, the integral-exponent reduction, and denominator estimates.
+- [`Schanuel/GaloisStableRelation.lean`](./Schanuel/GaloisStableRelation.lean),
+  [`Schanuel/GaloisDescent.lean`](./Schanuel/GaloisDescent.lean), and
+  [`Schanuel/GaloisStableArithmetic.lean`](./Schanuel/GaloisStableArithmetic.lean) construct a
+  Galois-stable formal exponential relation and prove that its integral weighted auxiliary sum
+  descends to an ordinary integer. No field automorphism is asserted to commute with analytic
+  exponentiation.
+- [`Schanuel/LindemannStableEndpoint.lean`](./Schanuel/LindemannStableEndpoint.lean) proves the
+  modular nonvanishing and factorial-decay contradiction for any stable integral relation.
+- [`Schanuel/GaloisStableAnalytic2.lean`](./Schanuel/GaloisStableAnalytic2.lean) connects the
+  endpoint to an arbitrary algebraic complex exponent. It proves, without extra hypotheses,
+  `HermiteLindemannStatement` and `OneDimensionalConjecture`.
+- [`Schanuel/DistinctFrequencies.lean`](./Schanuel/DistinctFrequencies.lean) proves injectivity of
+  nonnegative integral frequencies for a rationally linearly independent family.
+- [`Schanuel/RationalScaling.lean`](./Schanuel/RationalScaling.lean) contains supporting
+  integrality lemmas and proves that positive rational scaling preserves the generated
+  transcendence degree.
+- [`Schanuel/FractionAlgebraicIndependence.lean`](./Schanuel/FractionAlgebraicIndependence.lean)
+  upgrades algebraic independence from an integral domain to its fraction field.
+- [`Schanuel/AlgebraicInputs.lean`](./Schanuel/AlgebraicInputs.lean) uses the multivariate stable
+  relation to prove algebraic independence of the exponentials for algebraic-integer inputs, and
+  then uses common scaling to prove `Bound` (indeed exact transcendence degree `n`) for every
+  rationally linearly independent family of algebraic complex inputs.
+- [`Schanuel/RelativeDescent.lean`](./Schanuel/RelativeDescent.lean) splits the total
+  transcendence degree into the coordinate and relative exponential contributions and records
+  precise obstructions to specialization preserving the exponential graph.
+- [`Schanuel/ConfluentVandermonde.lean`](./Schanuel/ConfluentVandermonde.lean) proves the sharp
+  repeated-node polynomial zero estimate used in the audited auxiliary-function counts.
+- [`Schanuel/MixedObstruction.lean`](./Schanuel/MixedObstruction.lean) proves that the bound for
+  the linearly independent family `(log 2, log 2 + 1)` is exactly algebraic independence of
+  `(log 2, e)`.
+- [`Schanuel/IteratedExponentialBoundary.lean`](./Schanuel/IteratedExponentialBoundary.lean)
+  proves that, for nonzero algebraic `a`, the bound for `(a, exp a)` is exactly algebraic
+  independence of `(exp a, exp (exp a))` and identifies why finite Galois support stops there.
+- [`Schanuel/AlgebraicExponentialInputs.lean`](./Schanuel/AlgebraicExponentialInputs.lean) proves
+  that when every `exp (z i)` is algebraic, the desired bound is exactly algebraic independence
+  of the coordinate family `z`.
+- [`Schanuel/PeriodLogBoundary.lean`](./Schanuel/PeriodLogBoundary.lean) checks the concrete
+  all-algebraic-exponential family `(log 2, 2*pi*I)` and reduces its bound exactly to algebraic
+  independence of those two logarithmic/period coordinates.
+- [`Schanuel/IntegerShear.lean`](./Schanuel/IntegerShear.lean) proves that fixed-pivot integral
+  shears preserve linear independence and the generated field exactly.  Consequently every
+  linearly independent tuple is either all algebraic or has a same-field all-transcendental shear.
+- [`Schanuel/TranscendentalReduction.lean`](./Schanuel/TranscendentalReduction.lean) packages this
+  with the all-algebraic theorem and proves that the full conjecture is equivalent to its
+  restriction to families whose every coordinate is transcendental.
+- [`Schanuel/FullyTranscendentalReduction.lean`](./Schanuel/FullyTranscendentalReduction.lean)
+  refines the normal form with `{0,1,2}` shears: the remaining target is exactly the conjunction
+  of the all-transcendental-coordinate/all-algebraic-exponential branch and the branch where all
+  `2n` displayed values are individually transcendental.
+- [`Schanuel/AlgebraicRanks.lean`](./Schanuel/AlgebraicRanks.lean) defines the rational coefficient
+  subspaces giving algebraic additive values and algebraic exponential values.  Hermite--Lindemann
+  makes them disjoint and yields a checked complementary quotient-rank inequality.
+- [`Schanuel/RationalBasisInvariance.lean`](./Schanuel/RationalBasisInvariance.lean) proves that
+  every invertible rational matrix preserves rational linear independence, the transcendence
+  degree of the coordinate-exponential generated field, and `Bound`.  Denominator clearing gives
+  integer transforms in both directions, so the fields are mutually algebraic even when they are
+  not concretely equal.
+- [`Schanuel/ControlledMultipliers.lean`](./Schanuel/ControlledMultipliers.lean) defines the
+  rational space of complex scalars preserving a finite rational subspace.  Evaluation at a
+  nonzero vector bounds its dimension by that of the original space; controlled multiplier
+  exponentials are integral over the original generated field after denominator clearing.
+- [`Schanuel/ControlledMultiplierBridge.lean`](./Schanuel/ControlledMultiplierBridge.lean) gives
+  this multiplier space its natural rational-subalgebra structure, represents multiplication on
+  a finitely generated rational span by an explicit rational matrix, and applies the preceding
+  denominator-clearing result directly from the intrinsic span-preservation hypothesis.
+- [`Schanuel/CanonicalHermiteTail.lean`](./Schanuel/CanonicalHermiteTail.lean) makes explicit the
+  factorial-divided derivative tail hidden in Mathlib's existential approximation witnesses.  It
+  proves the canonical root-evaluation, degree, and zero-boundary normalization identities.
+- [`Schanuel/CanonicalHermiteApproximation.lean`](./Schanuel/CanonicalHermiteApproximation.lean)
+  proves that this explicit tail and numerator satisfy the full simultaneous analytic estimate,
+  prime nondivisibility, degree bound, and exact congruence normalization.  It rederives the
+  private analytic remainder bound using Mathlib's public integral identity.
 
-The checked results prove:
+The exact remaining scope and the audit of attempted higher-dimensional routes are recorded in
+[`PROGRESS.md`](./PROGRESS.md). The unresolved part is arbitrary `n >= 2` with arbitrary complex
+inputs; no theorem in the repository weakens or hides that requirement.
 
-- the empty-family (`n = 0`) case;
-- the predicted bound when the coordinates or their exponentials are algebraically independent;
-- the unconditional upper bound
-  `Algebra.trdeg ℚ (generatedField z) ≤ 2 * n`;
-- monotonicity of the generated field and its transcendence degree under taking subfamilies;
-- that a linearly independent `Fin n` family has rational span of `finrank n`;
-- the exact one-variable characterization
-  `Bound [z] ↔ Transcendental ℚ z ∨ Transcendental ℚ (exp z)`;
-- that the one-dimensional Schanuel statement is equivalent to Hermite--Lindemann;
-- the transcendence of `exp x` for every nonzero integer or rational `x`, and hence the
-  one-variable Schanuel bound at every nonzero rational input.
+## Building
 
-[`Schanuel/Structural.lean`](./Schanuel/Structural.lean) sharpens the numerical bound to a finite
-selection problem: `Bound z` holds exactly when `n` algebraically independent elements can be
-selected from the `2n` numbers `zᵢ, exp zᵢ`. It also proves the equivalent formulation with an
-injective selection map.
-
-[`Schanuel/LindemannAttempt.lean`](./Schanuel/LindemannAttempt.lean) pushes the one-dimensional
-proof into Mathlib's existing `LindemannWeierstrass.exp_polynomial_approx`. It formally:
-
-- clears denominators in minimal polynomials;
-- obtains simultaneous prime-indexed approximations for the relevant algebraic exponents;
-- extracts the integral exponential relation that would follow if `exp z` were algebraic;
-- proves the needed factorial decay and prime-selection endpoint lemmas;
-- completes the modular/analytic contradiction for nonzero integer exponents, then deduces the
-  nonzero rational case by clearing the denominator.
-
-The remaining arithmetic argument is packaged as `LindemannArithmeticStep`. Its intended proof is
-the classical Galois/integrality argument: first construct the correct Galois-symmetric auxiliary
-relation, descend a scaled approximation sum to an integer, prove it nonzero modulo a large prime,
-then use the analytic estimate to force its absolute value below one. This is defined only as a
-proposition and used through explicit hypotheses; it is not added as an axiom. The file proves
-that it is exactly equivalent to Hermite--Lindemann, confirming that it packages the full missing
-nonvanishing argument rather than a small final lemma.
-
-Mathlib is pinned to `v4.29.1`, matching the Lean version supplied by the Nix shell.
+Mathlib and Lean are pinned to `v4.29.1`.
 
 ```sh
-nix develop -c lake exe cache get
 nix develop -c lake build
 ```
 
-The project has no `sorry`, `admit`, or custom axioms.
+The registered modules build with no `sorry`, `admit`, or project axiom. The only current output
+is harmless linter advice.
