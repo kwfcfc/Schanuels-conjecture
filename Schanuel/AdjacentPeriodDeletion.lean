@@ -1,0 +1,329 @@
+import Schanuel.MinimalCounterexamplePeriodBearing
+
+/-!
+# Deleting the second coordinate of an adjacent-period family
+
+For a family whose first two inputs differ by the standard period, deleting the second input
+loses only that period: the full coordinate-exponential field is exactly the deletion field with
+the period adjoined.  This gives a sharp relative-transcendence-degree dichotomy.
+-/
+
+namespace Schanuel
+
+open Function Set
+
+noncomputable section
+
+/-- The embedding which skips index `1`. -/
+def adjacentDeletionEmbedding (n : ℕ) : Fin (n + 1) ↪ Fin (n + 2) :=
+  (1 : Fin (n + 2)).succAboveEmb
+
+/-- Delete the second coordinate (index `1`) of a family of length `n + 2`. -/
+def adjacentDeletion {n : ℕ} (w : Fin (n + 2) → ℂ) : Fin (n + 1) → ℂ :=
+  w ∘ adjacentDeletionEmbedding n
+
+@[simp]
+theorem adjacentDeletion_zero {n : ℕ} (w : Fin (n + 2) → ℂ) :
+    adjacentDeletion w 0 = w 0 := by
+  rfl
+
+/-- The exact field obtained by adjoining the standard period to the deletion field. -/
+def adjacentPeriodAdjoinField {n : ℕ} (w : Fin (n + 2) → ℂ) :
+    IntermediateField ℚ ℂ :=
+  IntermediateField.adjoin ℚ (insert standardPeriod (generators (adjacentDeletion w)))
+
+/-- Adjacent inputs have equal exponential values. -/
+theorem exp_one_eq_exp_zero_of_adjacentPeriod {n : ℕ} {w : Fin (n + 2) → ℂ}
+    (hpair : w 1 - w 0 = standardPeriod) :
+    Complex.exp (w 1) = Complex.exp (w 0) := by
+  have hw1 : w 1 = w 0 + standardPeriod := (sub_eq_iff_eq_add').mp hpair
+  rw [hw1, Complex.exp_add, exp_standardPeriod, mul_one]
+
+/-- The full generated field of an adjacent-period family is exactly the deletion field with the
+period adjoined. -/
+theorem generatedField_eq_adjacentPeriodAdjoinField {n : ℕ}
+    (w : Fin (n + 2) → ℂ) (hpair : w 1 - w 0 = standardPeriod) :
+    generatedField w = adjacentPeriodAdjoinField w := by
+  let p : Fin (n + 2) := 1
+  have hexpPair : Complex.exp (w 1) = Complex.exp (w 0) :=
+    exp_one_eq_exp_zero_of_adjacentPeriod hpair
+  have hw1 : w 1 = w 0 + standardPeriod := (sub_eq_iff_eq_add').mp hpair
+  apply le_antisymm
+  · rw [generatedField, IntermediateField.adjoin_le_iff]
+    rintro x (⟨j, rfl⟩ | ⟨j, rfl⟩)
+    · refine Fin.succAboveCases p ?_ (fun i ↦ ?_) j
+      · rw [hw1]
+        exact (adjacentPeriodAdjoinField w).add_mem
+          (IntermediateField.subset_adjoin ℚ _
+            (mem_insert_of_mem _
+              (Or.inl ⟨0, by simp [adjacentDeletion, adjacentDeletionEmbedding]⟩)))
+          (IntermediateField.subset_adjoin ℚ _ (mem_insert _ _))
+      · exact IntermediateField.subset_adjoin ℚ _
+          (mem_insert_of_mem _ (Or.inl ⟨i, rfl⟩))
+    · refine Fin.succAboveCases p ?_ (fun i ↦ ?_) j
+      · change Complex.exp (w 1) ∈ adjacentPeriodAdjoinField w
+        rw [hexpPair]
+        exact IntermediateField.subset_adjoin ℚ _
+          (mem_insert_of_mem _
+            (Or.inr ⟨0, by simp [adjacentDeletion, adjacentDeletionEmbedding]⟩))
+      · exact IntermediateField.subset_adjoin ℚ _
+          (mem_insert_of_mem _ (Or.inr ⟨i, rfl⟩))
+  · rw [adjacentPeriodAdjoinField, IntermediateField.adjoin_le_iff]
+    rintro x (rfl | hx)
+    · rw [← hpair]
+      exact (generatedField w).sub_mem
+        (IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨1, rfl⟩))
+        (IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨0, rfl⟩))
+    · rcases hx with ⟨i, rfl⟩ | ⟨i, rfl⟩
+      · exact IntermediateField.subset_adjoin ℚ _
+          (Or.inl ⟨adjacentDeletionEmbedding n i, rfl⟩)
+      · exact IntermediateField.subset_adjoin ℚ _
+          (Or.inr ⟨adjacentDeletionEmbedding n i, rfl⟩)
+
+/-- The deletion field embeds in the full field. -/
+theorem generatedField_adjacentDeletion_le {n : ℕ} (w : Fin (n + 2) → ℂ) :
+    generatedField (adjacentDeletion w) ≤ generatedField w := by
+  apply IntermediateField.adjoin.mono
+  exact generators_comp_subset w (adjacentDeletionEmbedding n)
+
+noncomputable instance generatedFieldAdjacentDeletionAlgebra {n : ℕ}
+    (w : Fin (n + 2) → ℂ) :
+    Algebra (generatedField (adjacentDeletion w)) (generatedField w) :=
+  (IntermediateField.inclusion (generatedField_adjacentDeletion_le w)).toRingHom.toAlgebra
+
+instance generatedFieldAdjacentDeletionIsScalarTower {n : ℕ}
+    (w : Fin (n + 2) → ℂ) :
+    IsScalarTower ℚ (generatedField (adjacentDeletion w)) (generatedField w) :=
+  IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+
+/-- The standard period, regarded inside the full generated field through the adjacent pair. -/
+def adjacentPeriodInGeneratedField {n : ℕ} (w : Fin (n + 2) → ℂ)
+    (hpair : w 1 - w 0 = standardPeriod) : generatedField w :=
+  ⟨standardPeriod, by
+    rw [← hpair]
+    exact (generatedField w).sub_mem
+      (IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨1, rfl⟩))
+      (IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨0, rfl⟩))⟩
+
+@[simp]
+theorem coe_adjacentPeriodInGeneratedField {n : ℕ} (w : Fin (n + 2) → ℂ)
+    (hpair : w 1 - w 0 = standardPeriod) :
+    (adjacentPeriodInGeneratedField w hpair : ℂ) = standardPeriod := rfl
+
+/-- Over the deletion field, the full generated field is generated by the one standard period. -/
+theorem adjoin_adjacentPeriodInGeneratedField_eq_top {n : ℕ}
+    (w : Fin (n + 2) → ℂ) (hpair : w 1 - w 0 = standardPeriod) :
+    IntermediateField.adjoin (generatedField (adjacentDeletion w))
+      ({adjacentPeriodInGeneratedField w hpair} : Set (generatedField w)) = ⊤ := by
+  let p : Fin (n + 2) := 1
+  let F := generatedField (adjacentDeletion w)
+  let K := generatedField w
+  let E := IntermediateField.adjoin F
+    ({adjacentPeriodInGeneratedField w hpair} : Set K)
+  have hw1 : w 1 = w 0 + standardPeriod := (sub_eq_iff_eq_add').mp hpair
+  have hexpPair : Complex.exp (w 1) = Complex.exp (w 0) :=
+    exp_one_eq_exp_zero_of_adjacentPeriod hpair
+  apply top_unique
+  rintro ⟨x, hx⟩ -
+  let q : ∀ y ∈ K, Prop := fun y hy ↦ (⟨y, hy⟩ : K) ∈ E
+  exact IntermediateField.adjoin_induction ℚ (p := q)
+    (fun y hy ↦ by
+      rcases hy with ⟨j, rfl⟩ | ⟨j, rfl⟩
+      · refine Fin.succAboveCases p ?_ (fun i ↦ ?_) j
+        · dsimp [q]
+          simpa [p, hw1] using E.add_mem
+              (E.algebraMap_mem
+                ⟨w 0, IntermediateField.subset_adjoin ℚ _
+                  (Or.inl ⟨0, by simp [adjacentDeletion, adjacentDeletionEmbedding]⟩)⟩)
+              (IntermediateField.subset_adjoin F _
+                (Set.mem_singleton (adjacentPeriodInGeneratedField w hpair)))
+        · dsimp [q]
+          exact E.algebraMap_mem
+            ⟨adjacentDeletion w i,
+              IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨i, rfl⟩)⟩
+      · refine Fin.succAboveCases p ?_ (fun i ↦ ?_) j
+        · dsimp [q]
+          simpa only [p, hexpPair] using E.algebraMap_mem
+              ⟨Complex.exp (w 0), IntermediateField.subset_adjoin ℚ _
+                (Or.inr ⟨0, by simp [adjacentDeletion, adjacentDeletionEmbedding]⟩)⟩
+        · dsimp [q]
+          exact E.algebraMap_mem
+            ⟨Complex.exp (adjacentDeletion w i),
+              IntermediateField.subset_adjoin ℚ _ (Or.inr ⟨i, rfl⟩)⟩)
+    (fun a ↦ by
+      dsimp [q]
+      exact E.algebraMap_mem
+        ⟨(a : ℂ), IntermediateField.algebraMap_mem _ a⟩)
+    (fun _ _ _ _ ha hb ↦ E.add_mem ha hb)
+    (fun _ _ ha ↦ E.inv_mem ha)
+    (fun _ _ _ _ ha hb ↦ E.mul_mem ha hb)
+    hx
+
+open scoped IntermediateField.algebraAdjoinAdjoin in
+/-- The full field is algebraic over the algebra generated by the period over the deletion
+field. -/
+theorem isAlgebraic_adjoin_adjacentPeriodInGeneratedField {n : ℕ}
+    (w : Fin (n + 2) → ℂ) (hpair : w 1 - w 0 = standardPeriod) :
+    Algebra.IsAlgebraic
+      (Algebra.adjoin (generatedField (adjacentDeletion w))
+        ({adjacentPeriodInGeneratedField w hpair} : Set (generatedField w)))
+      (generatedField w) := by
+  let f :
+      IntermediateField.adjoin (generatedField (adjacentDeletion w))
+          ({adjacentPeriodInGeneratedField w hpair} : Set (generatedField w)) →ₐ[
+        Algebra.adjoin (generatedField (adjacentDeletion w))
+          ({adjacentPeriodInGeneratedField w hpair} : Set (generatedField w))]
+        generatedField w :=
+    IsScalarTower.toAlgHom _ _ _
+  have hf_surj : Function.Surjective f := by
+    intro x
+    refine ⟨⟨x, ?_⟩, rfl⟩
+    rw [adjoin_adjacentPeriodInGeneratedField_eq_top w hpair]
+    exact IntermediateField.mem_top
+  let e := AlgEquiv.ofBijective f ⟨f.injective, hf_surj⟩
+  exact e.isAlgebraic
+
+/-- The full field has relative transcendence degree at most one over the deletion field. -/
+theorem relative_trdeg_adjacentDeletion_le_one {n : ℕ}
+    (w : Fin (n + 2) → ℂ) (hpair : w 1 - w 0 = standardPeriod) :
+    Algebra.trdeg (generatedField (adjacentDeletion w)) (generatedField w) ≤ 1 := by
+  letI : Algebra.IsAlgebraic
+      (Algebra.adjoin (generatedField (adjacentDeletion w))
+        ({adjacentPeriodInGeneratedField w hpair} : Set (generatedField w)))
+      (generatedField w) :=
+    isAlgebraic_adjoin_adjacentPeriodInGeneratedField w hpair
+  simpa using (Algebra.IsAlgebraic.trdeg_le_cardinalMk
+    (generatedField (adjacentDeletion w))
+      ({adjacentPeriodInGeneratedField w hpair} : Set (generatedField w)))
+
+/-- The relative transcendence degree in the adjacent deletion tower is exactly zero or one. -/
+theorem relative_trdeg_adjacentDeletion_eq_zero_or_one {n : ℕ}
+    (w : Fin (n + 2) → ℂ) (hpair : w 1 - w 0 = standardPeriod) :
+    Algebra.trdeg (generatedField (adjacentDeletion w)) (generatedField w) = 0 ∨
+      Algebra.trdeg (generatedField (adjacentDeletion w)) (generatedField w) = 1 :=
+  Cardinal.le_one_iff.mp (relative_trdeg_adjacentDeletion_le_one w hpair)
+
+/-- Relative transcendence degree zero is exactly algebraicity of the period over the deletion
+field. -/
+theorem relative_trdeg_adjacentDeletion_eq_zero_iff {n : ℕ}
+    (w : Fin (n + 2) → ℂ) (hpair : w 1 - w 0 = standardPeriod) :
+    Algebra.trdeg (generatedField (adjacentDeletion w)) (generatedField w) = 0 ↔
+      IsAlgebraic (generatedField (adjacentDeletion w)) standardPeriod := by
+  let F := generatedField (adjacentDeletion w)
+  let K := generatedField w
+  haveI : IsScalarTower F K ℂ := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+  constructor
+  · intro hzero
+    letI : Algebra.IsAlgebraic F K := trdeg_eq_zero_iff.mp hzero
+    have hp : IsAlgebraic F (adjacentPeriodInGeneratedField w hpair) :=
+      Algebra.IsAlgebraic.isAlgebraic _
+    rw [← isAlgebraic_algHom_iff (IsScalarTower.toAlgHom F K ℂ)
+      Subtype.val_injective] at hp
+    exact hp
+  · intro hp
+    let A : Subalgebra F K := Algebra.adjoin F
+      ({adjacentPeriodInGeneratedField w hpair} : Set K)
+    letI : Algebra F A := A.algebra
+    letI : Algebra A K := A.toAlgebra
+    letI : IsScalarTower F A K := IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
+    have hpK : IsAlgebraic F (adjacentPeriodInGeneratedField w hpair) := by
+      rw [← isAlgebraic_algHom_iff (IsScalarTower.toAlgHom F K ℂ)
+        Subtype.val_injective]
+      exact hp
+    have hsubAlg : A.IsAlgebraic :=
+      Algebra.isAlgebraic_adjoin_singleton_iff.mpr hpK
+    letI : Algebra.IsAlgebraic F A :=
+      ⟨fun x ↦ Subalgebra.isAlgebraic_iff_isAlgebraic_val.mpr (hsubAlg x x.2)⟩
+    letI : Algebra.IsAlgebraic A K :=
+      isAlgebraic_adjoin_adjacentPeriodInGeneratedField w hpair
+    letI : Algebra.IsAlgebraic F K := Algebra.IsAlgebraic.trans F A K
+    exact trdeg_eq_zero
+
+/-- The deletion embedding preserves rational linear independence. -/
+theorem linearIndependent_adjacentDeletion {n : ℕ} {w : Fin (n + 2) → ℂ}
+    (hlin : LinearIndependent ℚ w) :
+    LinearIndependent ℚ (adjacentDeletion w) := by
+  exact hlin.comp (adjacentDeletionEmbedding n) (adjacentDeletionEmbedding n).injective
+
+/-- Coordinatewise transcendence passes to the adjacent deletion. -/
+theorem transcendental_adjacentDeletion {n : ℕ} {w : Fin (n + 2) → ℂ}
+    (hcoord : ∀ i, Transcendental ℚ (w i)) :
+    ∀ i, Transcendental ℚ (adjacentDeletion w i) :=
+  fun i ↦ hcoord (adjacentDeletionEmbedding n i)
+
+/-- Coordinatewise exponential transcendence passes to the adjacent deletion. -/
+theorem transcendental_exp_adjacentDeletion {n : ℕ} {w : Fin (n + 2) → ℂ}
+    (hexp : ∀ i, Transcendental ℚ (Complex.exp (w i))) :
+    ∀ i, Transcendental ℚ (Complex.exp (adjacentDeletion w i)) :=
+  fun i ↦ hexp (adjacentDeletionEmbedding n i)
+
+/-- Exact deletion dichotomy for a fully transcendental adjacent-period defect-one family.
+Either the deletion has the sharp full bound and algebraizes the period, or it is a smaller fully
+transcendental defect-one family and the period is transcendental over its field. -/
+theorem adjacentDeletion_defectOne_dichotomy {n : ℕ} {w : Fin (n + 2) → ℂ}
+    (hlin : LinearIndependent ℚ w)
+    (hdefect : DefectOne w)
+    (hcoord : ∀ i, Transcendental ℚ (w i))
+    (hexp : ∀ i, Transcendental ℚ (Complex.exp (w i)))
+    (hpair : w 1 - w 0 = standardPeriod) :
+    LinearIndependent ℚ (adjacentDeletion w) ∧
+      (∀ i, Transcendental ℚ (adjacentDeletion w i)) ∧
+      (∀ i, Transcendental ℚ (Complex.exp (adjacentDeletion w i))) ∧
+      ((Algebra.trdeg ℚ (generatedField (adjacentDeletion w)) =
+          ((n + 1 : ℕ) : Cardinal) ∧
+          IsAlgebraic (generatedField (adjacentDeletion w)) standardPeriod) ∨
+        (DefectOne (adjacentDeletion w) ∧
+          Transcendental (generatedField (adjacentDeletion w)) standardPeriod)) := by
+  refine ⟨linearIndependent_adjacentDeletion hlin,
+    transcendental_adjacentDeletion hcoord,
+    transcendental_exp_adjacentDeletion hexp, ?_⟩
+  have hadd := trdeg_add_eq ℚ (generatedField (adjacentDeletion w))
+    (A := generatedField w)
+  have hfull : Algebra.trdeg ℚ (generatedField w) = ((n + 1 : ℕ) : Cardinal) := by
+    exact hdefect
+  rcases relative_trdeg_adjacentDeletion_eq_zero_or_one w hpair with hzero | hone
+  · left
+    constructor
+    · calc
+        Algebra.trdeg ℚ (generatedField (adjacentDeletion w)) =
+            Algebra.trdeg ℚ (generatedField w) := by simpa [hzero] using hadd
+        _ = ((n + 1 : ℕ) : Cardinal) := hfull
+    · exact (relative_trdeg_adjacentDeletion_eq_zero_iff w hpair).mp hzero
+  · right
+    have heq : Algebra.trdeg ℚ (generatedField (adjacentDeletion w)) + 1 =
+        (n : Cardinal) + 1 := by
+      calc
+        Algebra.trdeg ℚ (generatedField (adjacentDeletion w)) + 1 =
+            Algebra.trdeg ℚ (generatedField w) := by simpa [hone] using hadd
+        _ = ((n + 1 : ℕ) : Cardinal) := hfull
+        _ = (n : Cardinal) + 1 := by norm_cast
+    have hrest : Algebra.trdeg ℚ (generatedField (adjacentDeletion w)) =
+        (n : Cardinal) :=
+      Cardinal.eq_of_add_eq_add_right heq (by simp)
+    constructor
+    · exact hrest
+    · intro hp
+      have hzero := (relative_trdeg_adjacentDeletion_eq_zero_iff w hpair).mpr hp
+      rw [hzero] at hone
+      exact zero_ne_one hone
+
+/-- The exact adjacent-period defect-one package used by the proposed strongest normal form. -/
+def PeriodPairedDefectOne {n : ℕ} (w : Fin (n + 2) → ℂ) : Prop :=
+  LinearIndependent ℚ w ∧
+    DefectOne w ∧
+    (∀ i, Transcendental ℚ (w i)) ∧
+    (∀ i, Transcendental ℚ (Complex.exp (w i))) ∧
+    w 1 - w 0 = standardPeriod
+
+/-- The easy direction of the adjacent-period normal form: any period-paired independent
+defect-one family is already a counterexample to Schanuel's conjecture. -/
+theorem not_conjecture_of_exists_periodPairedDefectOne
+    (h : ∃ (n : ℕ) (w : Fin (n + 2) → ℂ), PeriodPairedDefectOne w) :
+    ¬ Conjecture := by
+  rintro hC
+  obtain ⟨n, w, hlin, hdefect, -, -, -⟩ := h
+  exact (noDefectOneIndependentFamilies_of_conjecture hC (n + 1) w hlin) hdefect
+
+end
+
+end Schanuel
