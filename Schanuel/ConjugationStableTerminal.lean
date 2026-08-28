@@ -57,6 +57,23 @@ theorem isAlgebraic_of_le_of_trdeg_eq_of_lt_aleph0
     · exact hzero
   exact trdeg_eq_zero_iff.mp hzero
 
+/-- Every rational linear combination of the inputs already belongs to their generated graph
+field. -/
+theorem mem_generatedField_of_mem_span {n : ℕ} (w : Fin n → ℂ) {x : ℂ}
+    (hx : x ∈ Submodule.span ℚ (Set.range w)) : x ∈ generatedField w := by
+  refine Submodule.span_induction
+    (p := fun y _ ↦ y ∈ generatedField w) ?_ ?_ ?_ ?_ hx
+  · intro y hy
+    rcases hy with ⟨i, rfl⟩
+    exact IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨i, rfl⟩)
+  · exact (generatedField w).zero_mem
+  · intro y z hy hz hy' hz'
+    exact (generatedField w).add_mem hy' hz'
+  · intro q y hy hy'
+    rw [Rat.smul_def]
+    exact (generatedField w).mul_mem
+      (IntermediateField.algebraMap_mem _ q) hy'
+
 /-- Data carried by the invariant codimension-one deletion of a positive least stable failure.
 The unscaled family records the literal canonical anchor and stability; the common integral
 scale records the honest subfield inclusion needed for tower algebraicity. -/
@@ -84,6 +101,51 @@ structure StableTerminalDeletionData {n : ℕ} (w : Fin (n + 2) → ℂ) where
     Algebra.IsAlgebraic (generatedField (ratScaleFamily (scale : ℚ) deletion))
       (generatedField w)
   omittedOutside : w omitted ∉ Submodule.span ℚ (Set.range deletion)
+
+/-- Terminal algebraicity applies not only to a selected original coordinate: every rational
+direction in the full input span and its analytic exponential are algebraic over the sharp scaled
+deletion field.  The exponential assertion uses one common denominator for that direction and
+the checked rational-scaling integrality theorem. -/
+theorem StableTerminalDeletionData.span_pair_isAlgebraic
+    {n : ℕ} {w : Fin (n + 2) → ℂ}
+    (D : StableTerminalDeletionData w) {x : ℂ}
+    (hx : x ∈ Submodule.span ℚ (Set.range w)) :
+    IsAlgebraic (generatedField (ratScaleFamily (D.scale : ℚ) D.deletion)) x ∧
+      IsAlgebraic (generatedField (ratScaleFamily (D.scale : ℚ) D.deletion))
+        (Complex.exp x) := by
+  let K := generatedField (ratScaleFamily (D.scale : ℚ) D.deletion)
+  let L := generatedField w
+  letI : Algebra K L := (stableDeletionInclusion D.fieldLe).toAlgebra
+  haveI : IsScalarTower K L ℂ := by
+    apply IsScalarTower.of_algebraMap_eq'
+    ext a
+    rfl
+  letI : Algebra.IsAlgebraic K L := D.fullAlgebraic
+  have hxL : x ∈ L := mem_generatedField_of_mem_span w hx
+  have hxAlgL : IsAlgebraic L x :=
+    (isIntegral_of_mem_intermediateField L hxL).isAlgebraic
+  have hxAlgK : IsAlgebraic K x := hxAlgL.restrictScalars K
+  have hsingleton : Submodule.span ℚ (Set.range (fun _ : Fin 1 ↦ x)) ≤
+      Submodule.span ℚ (Set.range w) := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨i, rfl⟩
+    exact hx
+  obtain ⟨d, hd, hfield⟩ :=
+    exists_pos_integer_scale_generatedField_le_of_span_le
+      (fun _ : Fin 1 ↦ x) w hsingleton
+  have hdQ : (0 : ℚ) < d := by exact_mod_cast hd
+  let E := generatedField (ratScaleFamily (d : ℚ) (fun _ : Fin 1 ↦ x))
+  letI : Algebra E L := (IntermediateField.inclusion hfield).toRingHom.toRatAlgHom.toAlgebra
+  haveI : IsScalarTower E L ℂ := by
+    apply IsScalarTower.of_algebraMap_eq'
+    ext a
+    rfl
+  have hexpIntE : IsIntegral E (Complex.exp x) := by
+    simpa [E] using exp_isIntegral_over_ratScale
+      (d : ℚ) hdQ (fun _ : Fin 1 ↦ x) (0 : Fin 1)
+  have hexpIntL : IsIntegral L (Complex.exp x) := hexpIntE.tower_top
+  have hexpAlgL : IsAlgebraic L (Complex.exp x) := hexpIntL.isAlgebraic
+  exact ⟨hxAlgK, hexpAlgL.restrictScalars K⟩
 
 /-- Denominator clearing preserves the sharp equality of the invariant-hyperplane deletion. -/
 theorem scaledDeletionSharp {n : ℕ} {w : Fin (n + 2) → ℂ}
