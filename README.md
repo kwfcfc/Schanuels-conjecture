@@ -219,7 +219,9 @@ not presented as a solution of the full task.
   quantitative version of the same final disjoint equivalence.  In the quadratic branch the
   input and exponential have exact traces `0` and `y+y⁻¹`, exact norms `−b²` and `1`, and the
   unique switch fixes precisely the embedded analytic-shadow field.  The last input has literal
-  minimal polynomial `X²−b²` over that field.
+  minimal polynomial `X²−b²` over that field.  Independently of the quartic branch, the terminal
+  exponential never equals its inverse; in degree two it too lies outside the base and has exact
+  minimal polynomial `X²−(y+y⁻¹)X+1`.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

@@ -2921,6 +2921,47 @@ theorem PositiveEigenvectorTerminalWitness.last_ne_zero
   rw [hzero]
   exact Submodule.zero_mem _
 
+/-- The terminal exponential never equals its inverse, independently of the later field degree.
+Otherwise `exp(2b)=1`, so the last input would be a rational multiple of the standard period and
+would lie in the canonical-anchor span. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExp_ne_inv
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    selectedExpInFull u (Fin.last (n + 2)) ≠
+      (selectedExpInFull u (Fin.last (n + 2)))⁻¹ := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let F := generatedField u
+  intro heqF
+  have heq : y = y⁻¹ := congrArg ((↑) : F → ℂ) heqF
+  have hy0 : y ≠ 0 := Complex.exp_ne_zero b
+  have hy2 : y * y = 1 := by
+    calc
+      y * y = y * y⁻¹ := congrArg (y * ·) heq
+      _ = 1 := mul_inv_cancel₀ hy0
+  have hexp : Complex.exp (2 * b) = 1 := by
+    rw [show (2 : ℂ) * b = b + b by ring, Complex.exp_add]
+    exact hy2
+  obtain ⟨k, hk⟩ := Complex.exp_eq_one_iff.mp hexp
+  have hk' : (2 : ℂ) * b = (k : ℂ) * standardPeriod := by
+    simpa [standardPeriod, PeriodLogBoundary.period, mul_assoc] using hk
+  have hbformula : b = ((((k : ℚ) / 2 : ℚ) : ℂ) * standardPeriod) := by
+    apply (mul_left_cancel₀ (by norm_num : (2 : ℂ) ≠ 0))
+    calc
+      (2 : ℂ) * b = (k : ℂ) * standardPeriod := hk'
+      _ = (2 : ℂ) * ((((k : ℚ) / 2 : ℚ) : ℂ) * standardPeriod) := by
+        push_cast
+        ring
+  apply W.last_not_mem_canonicalAnchor_span
+  change b ∈ Submodule.span ℚ (Set.range canonicalAnchor)
+  rw [hbformula]
+  have hperiod : standardPeriod ∈
+      Submodule.span ℚ (Set.range canonicalAnchor) :=
+    standardPeriod_mem_of_anchor_le _ le_rfl
+  change ((k : ℚ) / 2) • standardPeriod ∈
+    Submodule.span ℚ (Set.range canonicalAnchor)
+  exact (Submodule.span ℚ (Set.range canonicalAnchor)).smul_mem ((k : ℚ) / 2) hperiod
+
 /-- The mixed terminal invariant obtained by multiplying the odd input coordinate by the odd
 part of its exponential.  It is conjugation-fixed for either sign of the terminal eigenvector. -/
 def eigenvectorTerminalCrossInvariant {n : ℕ} (u : Fin (n + 3) → ℂ) : ℂ :=
@@ -4821,45 +4862,9 @@ theorem PositiveEigenvectorTerminalWitness.terminalExp_ne_inv_of_finrank_eq_four
     Module.finrank M (generatedField u) = 4 →
       selectedExpInFull u (Fin.last (n + 2)) ≠
         (selectedExpInFull u (Fin.last (n + 2)))⁻¹ := by
-  classical
   dsimp only
-  intro hfour
-  let b := u (Fin.last (n + 2))
-  let y := Complex.exp b
-  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
-  let F := generatedField u
-  letI : Algebra M F :=
-    (IntermediateField.inclusion
-      W.initial_sup_terminalRealCore_le_full).toRingHom.toRatAlgHom.toAlgebra
-  let bF : F := selectedInputInFull u (Fin.last (n + 2))
-  let yF : F := selectedExpInFull u (Fin.last (n + 2))
-  let signMap : Gal(F/M) → Bool × Bool := fun σ ↦
-    (decide (σ bF = bF), decide (σ yF = yF))
-  have hsurj : Function.Surjective signMap :=
-    (W.terminalSignMap_bijective_of_finrank_eq_four hfour).2
-  obtain ⟨τ, hτ⟩ := hsurj (true, false)
-  have hytrace : y + y⁻¹ ∈ M := by
-    apply (show eigenvectorTerminalRealCore u ≤ M from le_sup_right)
-    exact IntermediateField.subset_adjoin ℚ _
-      (Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton _)))
-  have hyF0 : yF ≠ 0 := by
-    intro h
-    exact Complex.exp_ne_zero b (congrArg Subtype.val h)
-  have hy_cases : τ yF = yF ∨ τ yF = yF⁻¹ := by
-    apply eq_or_eq_inv_of_add_inv_eq ((map_ne_zero τ).mpr hyF0) hyF0
-    calc
-      τ yF + (τ yF)⁻¹ = τ (yF + yF⁻¹) := by simp
-      _ = τ (algebraMap M F (⟨y + y⁻¹, hytrace⟩ : M)) := by rfl
-      _ = algebraMap M F (⟨y + y⁻¹, hytrace⟩ : M) := τ.commutes _
-      _ = yF + yF⁻¹ := by rfl
-  have hnot : τ yF ≠ yF := by
-    intro h
-    have hcode := congrArg Prod.snd hτ
-    simp [signMap, h] at hcode
-  intro heq
-  rcases hy_cases with h | h
-  · exact hnot h
-  · exact hnot (h.trans heq.symm)
+  intro _
+  exact W.terminalExp_ne_inv
 
 /-- In the quartic branch, the mixed conjugation-fixed invariant is not already in the prefix
 joined with the separate square and trace invariants.  An input-only deck switch fixes the base
@@ -6915,6 +6920,135 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_minpoly_lastInput_of_
   change minpoly A b = p
   exact (Polynomial.eq_of_monic_of_dvd_of_natDegree_le
     (minpoly.monic hbint) hpmonic hdvd (hpdegree.trans hdegree.symm).le).symm
+
+/-- In the quadratic analytic-shadow branch the terminal exponential is absent from the base as
+well.  If it belonged to the base, the unique switch would both fix it and invert it, contrary
+to the period-anchor nondegeneracy theorem. -/
+theorem PositiveEigenvectorTerminalWitness.lastExp_not_mem_initialAnalytic_of_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 →
+      Complex.exp (u (Fin.last (n + 2))) ∉ A := by
+  dsimp only
+  intro htwo
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  obtain ⟨σ, ⟨-, -, hy⟩, -⟩ :=
+    W.existsUnique_initialAnalytic_switch_of_finrank_two htwo
+  intro hyA
+  let yA : A := ⟨Complex.exp (u (Fin.last (n + 2))), hyA⟩
+  have hyfix : σ yF = yF := by
+    calc
+      σ yF = σ (algebraMap A F yA) := by rfl
+      _ = algebraMap A F yA := σ.commutes yA
+      _ = yF := by rfl
+  exact W.terminalExp_ne_inv (hyfix.symm.trans hy)
+
+/-- The other terminal generator has the exact reciprocal quadratic polynomial over the analytic
+shadow.  Its trace coefficient is represented by the literal element `y + y⁻¹` of the base. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_minpoly_lastExp_of_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 →
+      ∃ t : A,
+        (t : ℂ) = Complex.exp (u (Fin.last (n + 2))) +
+            (Complex.exp (u (Fin.last (n + 2))))⁻¹ ∧
+          minpoly A (selectedExpInFull u (Fin.last (n + 2))) =
+            Polynomial.X ^ 2 - Polynomial.C t * Polynomial.X + 1 := by
+  dsimp only
+  intro htwo
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  let y := Complex.exp (u (Fin.last (n + 2)))
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  have htA : y + y⁻¹ ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _
+      (Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton _)))
+  let t : A := ⟨y + y⁻¹, htA⟩
+  refine ⟨t, rfl, ?_⟩
+  let p : Polynomial A := Polynomial.X ^ 2 - Polynomial.C t * Polynomial.X + 1
+  have hyint : IsIntegral A yF := Algebra.IsIntegral.isIntegral yF
+  have hpform : p = Polynomial.C 1 * Polynomial.X ^ 2 +
+      Polynomial.C (-t) * Polynomial.X + Polynomial.C 1 := by
+    simp [p]
+    ring
+  have hpform' : p = Polynomial.X ^ 2 +
+      (-(Polynomial.C t * Polynomial.X) + 1) := by
+    simp [p]
+    ring
+  have hlinear : (-(Polynomial.C t * Polynomial.X)).degree ≤ 1 := by
+    rw [Polynomial.degree_neg]
+    calc
+      (Polynomial.C t * Polynomial.X).degree ≤
+          (Polynomial.C t).degree + Polynomial.X.degree :=
+        Polynomial.degree_mul_le _ _
+      _ ≤ 0 + 1 := add_le_add (Polynomial.degree_C_le) (by simp)
+      _ = 1 := by norm_num
+  have hpmonic : p.Monic := by
+    rw [hpform']
+    apply Polynomial.monic_X_pow_add
+    calc
+      (-(Polynomial.C t * Polynomial.X) + 1).degree ≤
+          max (-(Polynomial.C t * Polynomial.X)).degree (1 : Polynomial A).degree :=
+        Polynomial.degree_add_le _ _
+      _ ≤ 1 := max_le hlinear (by simp)
+      _ < 2 := by norm_num
+  have hpeval : Polynomial.aeval yF p = 0 := by
+    rw [Polynomial.aeval_def]
+    dsimp only [p]
+    rw [Polynomial.eval₂_add, Polynomial.eval₂_sub,
+      Polynomial.eval₂_mul, Polynomial.eval₂_X_pow, Polynomial.eval₂_C,
+      Polynomial.eval₂_X, Polynomial.eval₂_one]
+    apply Subtype.ext
+    change y ^ 2 - (y + y⁻¹) * y + 1 = 0
+    calc
+      y ^ 2 - (y + y⁻¹) * y + 1 = 1 - y⁻¹ * y := by ring
+      _ = 0 := by rw [inv_mul_cancel₀ (Complex.exp_ne_zero _)]; ring
+  have hdvd : minpoly A yF ∣ p := minpoly.dvd A yF hpeval
+  have hynotA : y ∉ A := W.lastExp_not_mem_initialAnalytic_of_finrank_two htwo
+  have hynotrange : yF ∉ Set.range (algebraMap A F) := by
+    rintro ⟨a, ha⟩
+    apply hynotA
+    have hay := congrArg ((↑) : F → ℂ) ha
+    change (a : ℂ) = y at hay
+    rw [← hay]
+    exact a.property
+  have hlower : 2 ≤ (minpoly A yF).natDegree :=
+    (minpoly.two_le_natDegree_iff hyint).mpr hynotrange
+  have hupper : (minpoly A yF).natDegree ≤ 2 := by
+    exact (minpoly.natDegree_le yF).trans_eq htwo
+  have hdegree : (minpoly A yF).natDegree = 2 := Nat.le_antisymm hupper hlower
+  have hpdegree : p.natDegree = 2 := by
+    rw [hpform]
+    exact Polynomial.natDegree_quadratic one_ne_zero
+  change minpoly A yF = p
+  exact (Polynomial.eq_of_monic_of_dvd_of_natDegree_le
+    (minpoly.monic hyint) hpmonic hdvd (hpdegree.trans hdegree.symm).le).symm
 
 /-- Every nonidentity analytic-shadow deck transformation has an explicit discontinuity
 sequence at zero, without any quartic assumption. -/

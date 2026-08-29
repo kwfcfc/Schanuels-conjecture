@@ -15213,6 +15213,24 @@ minimal polynomial of `b` over `A` is exactly
 where the coefficient `b^2` is represented by its actual element of `A`.  Thus the simultaneous
 switch is precisely the conjugation of this displayed quadratic Kummer presentation.
 
+The terminal exponential nondegeneracy does not in fact require the old quartic branch.  For
+every positive terminal witness,
+
+`exp(b) != exp(b)^(-1)`.                                         `(RQ81)`
+
+Indeed equality would give `exp(2b)=1`; the exact kernel of complex exponentiation would then
+put `b` in the rational span of the standard period, contradicting its exclusion from the
+canonical-anchor span.  This replaces the earlier sign-count proof of the quartic special case.
+
+Consequently, in the quadratic analytic branch the exponential generator is absent from `A` as
+well `(RQ82)`: otherwise the relative switch would fix it and invert it simultaneously.  Its
+minimal polynomial is therefore exactly
+
+`X^2-(y+y^(-1))*X+1`, where `y=exp(b)`.                           `(RQ83)`
+
+Thus either member of the terminal graph pair separately generates the same quadratic top, with
+literal square and reciprocal-trace presentations respectively.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15618,3 +15636,6 @@ The exact terminal trace/norm identities `(RQ78)` and exact fixed-field characte
 unique switch `(RQ79)` have the same audit result.
 The exact quadratic minimal polynomial of the last input `(RQ80)` has likewise been audited with
 only those three axioms.
+The quartic-free terminal exponential nondegeneracy `(RQ81)`, exclusion of the exponential from
+the degree-two analytic base `(RQ82)`, and its exact reciprocal minimal polynomial `(RQ83)` have
+the same audit result.
