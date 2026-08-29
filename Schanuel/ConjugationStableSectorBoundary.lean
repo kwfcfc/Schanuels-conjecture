@@ -6854,6 +6854,68 @@ theorem PositiveEigenvectorTerminalWitness.existsUnique_initialAnalytic_switch_w
   · intro τ hτ
     exact hunique τ ⟨hτ.1, hτ.2.1, hτ.2.2.1⟩
 
+/-- The residual quadratic generator has exactly the expected minimal polynomial: after viewing
+its square in the analytic shadow, no linear factor or alternative quadratic remains. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_minpoly_lastInput_of_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 →
+      ∃ b2 : A,
+        (b2 : ℂ) = u (Fin.last (n + 2)) ^ 2 ∧
+          minpoly A (selectedInputInFull u (Fin.last (n + 2))) =
+            Polynomial.X ^ 2 - Polynomial.C b2 := by
+  dsimp only
+  intro htwo
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  let b := selectedInputInFull u (Fin.last (n + 2))
+  have hb2A : u (Fin.last (n + 2)) ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _
+      (Set.mem_insert (u (Fin.last (n + 2)) ^ 2) _)
+  let b2 : A := ⟨u (Fin.last (n + 2)) ^ 2, hb2A⟩
+  refine ⟨b2, rfl, ?_⟩
+  let p : Polynomial A := Polynomial.X ^ 2 - Polynomial.C b2
+  have hbint : IsIntegral A b := Algebra.IsIntegral.isIntegral b
+  have hpmonic : p.Monic := Polynomial.monic_X_pow_sub_C b2 (by norm_num)
+  have hpeval : Polynomial.aeval b p = 0 := by
+    simp only [p, map_sub, map_pow, Polynomial.aeval_X,
+      Polynomial.aeval_C, sub_eq_zero]
+    apply Subtype.ext
+    rfl
+  have hdvd : minpoly A b ∣ p := minpoly.dvd A b hpeval
+  have hbnotA : u (Fin.last (n + 2)) ∉ A :=
+    (W.lastInput_not_mem_initialAnalytic_iff_finrank_two).mpr htwo
+  have hbnotrange : b ∉ Set.range (algebraMap A F) := by
+    rintro ⟨a, ha⟩
+    apply hbnotA
+    have hab := congrArg ((↑) : F → ℂ) ha
+    change (a : ℂ) = u (Fin.last (n + 2)) at hab
+    rw [← hab]
+    exact a.property
+  have hlower : 2 ≤ (minpoly A b).natDegree :=
+    (minpoly.two_le_natDegree_iff hbint).mpr hbnotrange
+  have hupper : (minpoly A b).natDegree ≤ 2 := by
+    exact (minpoly.natDegree_le b).trans_eq htwo
+  have hdegree : (minpoly A b).natDegree = 2 := Nat.le_antisymm hupper hlower
+  have hpdegree : p.natDegree = 2 := Polynomial.natDegree_X_pow_sub_C
+  change minpoly A b = p
+  exact (Polynomial.eq_of_monic_of_dvd_of_natDegree_le
+    (minpoly.monic hbint) hpmonic hdvd (hpdegree.trans hdegree.symm).le).symm
+
 /-- Every nonidentity analytic-shadow deck transformation has an explicit discontinuity
 sequence at zero, without any quartic assumption. -/
 theorem PositiveEigenvectorTerminalWitness.exists_initialAnalytic_discontinuity_sequence

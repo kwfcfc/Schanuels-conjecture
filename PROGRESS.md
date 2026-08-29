@@ -15205,6 +15205,14 @@ embedding the trace and norm back into `L`:
 Moreover the unique switch has no accidental fixed elements: `sigma(z)=z` holds exactly when
 `z` lies in the embedded analytic base `A`.                          `(RQ79)`
 
+The last-input presentation is now literal at the polynomial level as well.  If `[L:A]=2`, the
+minimal polynomial of `b` over `A` is exactly
+
+`X^2-b^2`,                                                        `(RQ80)`
+
+where the coefficient `b^2` is represented by its actual element of `A`.  Thus the simultaneous
+switch is precisely the conjugation of this displayed quadratic Kummer presentation.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15608,3 +15616,5 @@ Its named branch proposition and package-free global equivalence `(RQ77)` have l
 audited with only those three axioms.
 The exact terminal trace/norm identities `(RQ78)` and exact fixed-field characterization of the
 unique switch `(RQ79)` have the same audit result.
+The exact quadratic minimal polynomial of the last input `(RQ80)` has likewise been audited with
+only those three axioms.
