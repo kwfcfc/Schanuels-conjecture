@@ -221,7 +221,10 @@ not presented as a solution of the full task.
   unique switch fixes precisely the embedded analytic-shadow field.  The last input has literal
   minimal polynomial `X²−b²` over that field.  Independently of the quartic branch, the terminal
   exponential never equals its inverse; in degree two it too lies outside the base and has exact
-  minimal polynomial `X²−(y+y⁻¹)X+1`.
+  minimal polynomial `X²−(y+y⁻¹)X+1`.  Symmetrically, the mixed invariant gives the explicit
+  reconstruction `b=c/(y−y⁻¹)`, so adjoining the terminal exponential alone recovers the literal
+  full graph field and yields the corresponding algebra equivalence over the analytic shadow,
+  without any degree hypothesis.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

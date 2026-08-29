@@ -15231,6 +15231,20 @@ minimal polynomial is therefore exactly
 Thus either member of the terminal graph pair separately generates the same quadratic top, with
 literal square and reciprocal-trace presentations respectively.
 
+The symmetric reconstruction is now explicit over the analytic shadow.  Writing
+`c=b*(y-y^(-1))`, terminal nondegeneracy permits division and gives
+
+`b=c/(y-y^(-1)) in A(y)`.                                      `(RQ84)`
+
+Consequently adjoining the last exponential alone and then restricting scalars to `Q` recovers
+the literal full graph field `(RQ85)`.  The corresponding simple extension is exposed as an
+`A`-algebra equivalence
+
+`A(y) ~=_A generatedField(u)`.                                 `(RQ86)`
+
+These reconstruction statements require no relative-degree or quartic hypothesis: either member
+of the terminal graph pair generates the full field over the analytic shadow in every branch.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15639,3 +15653,7 @@ only those three axioms.
 The quartic-free terminal exponential nondegeneracy `(RQ81)`, exclusion of the exponential from
 the degree-two analytic base `(RQ82)`, and its exact reciprocal minimal polynomial `(RQ83)` have
 the same audit result.
+The rational reconstruction of the last input from the last exponential `(RQ84)`, literal
+restriction-of-scalars recovery of the full graph field `(RQ85)`, and the resulting symmetric
+simple-extension algebra equivalence `(RQ86)` have likewise been audited with only those three
+axioms.

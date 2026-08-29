@@ -3351,6 +3351,82 @@ theorem PositiveEigenvectorTerminalWitness.restrictScalars_adjoin_lastInput_eq_f
     rw [W.fullField_eq_initialAnalyticRealCore_sup_lastPair]
     exact sup_le hA hpair
 
+/-- Symmetrically, the mixed invariant recovers the last input rationally from the last
+exponential over the analytic shadow: `b = c / (y - y⁻¹)`.  The denominator is nonzero by the
+period-anchor exclusion. -/
+theorem PositiveEigenvectorTerminalWitness.terminalInput_mem_adjoin_lastExp_initialAnalytic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    u (Fin.last (n + 2)) ∈ IntermediateField.adjoin A
+      ({Complex.exp (u (Fin.last (n + 2)))} : Set ℂ) := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let c := eigenvectorTerminalCrossInvariant u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let N : IntermediateField A ℂ := IntermediateField.adjoin A ({y} : Set ℂ)
+  have hyN : y ∈ N :=
+    IntermediateField.subset_adjoin A _ (Set.mem_singleton y)
+  have hcA : c ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    exact terminalCrossInvariant_mem_analyticRealCore u
+  have hcN : c ∈ N := by
+    simpa using IntermediateField.algebraMap_mem N (⟨c, hcA⟩ : A)
+  have hyne : y ≠ y⁻¹ := by
+    intro heq
+    apply W.terminalExp_ne_inv
+    apply Subtype.ext
+    exact heq
+  have hid : b = c * (y - y⁻¹)⁻¹ := by
+    change b = (b * (y - y⁻¹)) * (y - y⁻¹)⁻¹
+    rw [mul_assoc, mul_inv_cancel₀ (sub_ne_zero.mpr hyne), mul_one]
+  change b ∈ N
+  rw [hid]
+  exact N.mul_mem hcN (N.inv_mem (N.sub_mem hyN (N.inv_mem hyN)))
+
+/-- Adjoining only the last exponential over the analytic shadow recovers the full graph field,
+just as adjoining only the last input does. -/
+theorem PositiveEigenvectorTerminalWitness.restrictScalars_adjoin_lastExp_eq_fullField
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    (IntermediateField.adjoin A
+      ({Complex.exp (u (Fin.last (n + 2)))} : Set ℂ)).restrictScalars ℚ =
+        generatedField u := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  let N : IntermediateField A ℂ := IntermediateField.adjoin A ({y} : Set ℂ)
+  have hrestrict : N.restrictScalars ℚ = A ⊔ IntermediateField.adjoin ℚ ({y} : Set ℂ) :=
+    IntermediateField.restrictScalars_adjoin_eq_sup ℚ A _
+  have hyN : y ∈ N :=
+    IntermediateField.subset_adjoin A _ (Set.mem_singleton y)
+  have hbN : b ∈ N := W.terminalInput_mem_adjoin_lastExp_initialAnalytic
+  have hA : A ≤ N.restrictScalars ℚ := by
+    rw [hrestrict]
+    exact le_sup_left
+  have hpair : IntermediateField.adjoin ℚ ({b, y} : Set ℂ) ≤ N.restrictScalars ℚ := by
+    rw [IntermediateField.adjoin_le_iff]
+    rintro x (rfl | hx)
+    · exact hbN
+    · rcases hx with rfl
+      exact hyN
+  have hAF : A ≤ F := by
+    change A ≤ generatedField u
+    rw [W.fullField_eq_initialAnalyticRealCore_sup_lastPair]
+    exact le_sup_left
+  change N.restrictScalars ℚ = F
+  apply le_antisymm
+  · rw [hrestrict]
+    apply sup_le hAF
+    rw [IntermediateField.adjoin_le_iff]
+    rintro x (rfl : x = y)
+    exact (exponential u (Fin.last (n + 2))).property
+  · change generatedField u ≤ N.restrictScalars ℚ
+    rw [W.fullField_eq_initialAnalyticRealCore_sup_lastPair]
+    exact sup_le hA hpair
+
 /-- An element whose square belongs to the base field is integral of degree at most two. -/
 theorem isIntegral_of_sq_mem
     {F : Type*} [Field F] [Algebra F ℂ]
@@ -4196,6 +4272,40 @@ noncomputable def PositiveEigenvectorTerminalWitness.terminalAnalyticLastInputFu
       W.initial_sup_analyticRealCore_le_full).toRingHom.toRatAlgHom.toAlgebra
   have hN : N.restrictScalars ℚ = F :=
     W.restrictScalars_adjoin_lastInput_eq_fullField
+  let e : N ≃ₐ[A] F :=
+    { toFun := fun x ↦
+        ⟨x, by
+          have hx : (x : ℂ) ∈ N.restrictScalars ℚ := x.property
+          rw [hN] at hx
+          exact hx⟩
+      invFun := fun x ↦
+        ⟨x, by
+          let z : ℂ := x
+          have hx : z ∈ F := x.property
+          rw [← hN] at hx
+          exact hx⟩
+      left_inv := fun _ ↦ rfl
+      right_inv := fun _ ↦ rfl
+      map_add' := fun _ _ ↦ rfl
+      map_mul' := fun _ _ ↦ rfl
+      commutes' := fun _ ↦ rfl }
+  exact e
+
+/-- Adjoining only the last exponential gives the symmetric algebra equivalence with the full
+terminal graph field. -/
+noncomputable def PositiveEigenvectorTerminalWitness.terminalAnalyticLastExpFullAlgEquiv
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    letI : Algebra A (generatedField u) := W.terminalInitialAnalyticToFullAlgebra
+    IntermediateField.adjoin A
+      ({Complex.exp (u (Fin.last (n + 2)))} : Set ℂ) ≃ₐ[A] generatedField u := by
+  let y := Complex.exp (u (Fin.last (n + 2)))
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  let N : IntermediateField A ℂ := IntermediateField.adjoin A ({y} : Set ℂ)
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  have hN : N.restrictScalars ℚ = F := W.restrictScalars_adjoin_lastExp_eq_fullField
   let e : N ≃ₐ[A] F :=
     { toFun := fun x ↦
         ⟨x, by
