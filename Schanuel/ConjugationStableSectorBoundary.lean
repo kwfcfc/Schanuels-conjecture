@@ -14,7 +14,7 @@ with an original graph field uses an explicit common integral denominator.
 
 namespace Schanuel
 
-open Function Set
+open Function Set Filter Topology
 
 noncomputable section
 
@@ -5526,6 +5526,695 @@ theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compa
     (W.exp_compatible_iff_crossInFull_fixed_of_finrank_eq_four hfour σM).mpr hfix
   simpa [σM, AlgEquiv.restrictScalars_apply] using hcompat
 
+/-- In the quartic branch, every deck transformation over the analytic real shadow is diagonal
+on the terminal pair: it either fixes both the last input and its exponential, or simultaneously
+negates the input and inverts the exponential. -/
+theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_diagonal_sign_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A :=
+      (IntermediateField.inclusion
+        (initialRealCore_le_initialAnalyticRealCore u)).toRingHom.toRatAlgHom.toAlgebra
+    letI : Algebra A F :=
+      (IntermediateField.inclusion
+        W.initial_sup_analyticRealCore_le_full).toRingHom.toRatAlgHom.toAlgebra
+    letI : Algebra M F :=
+      (IntermediateField.inclusion
+        W.initial_sup_terminalRealCore_le_full).toRingHom.toRatAlgHom.toAlgebra
+    Module.finrank M F = 4 →
+      ∀ σ : Gal(F/A),
+        (σ (selectedInputInFull u (Fin.last (n + 2))) =
+            selectedInputInFull u (Fin.last (n + 2)) ∧
+          σ (selectedExpInFull u (Fin.last (n + 2))) =
+            selectedExpInFull u (Fin.last (n + 2))) ∨
+        (σ (selectedInputInFull u (Fin.last (n + 2))) =
+            -selectedInputInFull u (Fin.last (n + 2)) ∧
+          σ (selectedExpInFull u (Fin.last (n + 2))) =
+            (selectedExpInFull u (Fin.last (n + 2)))⁻¹) := by
+  dsimp only
+  intro hfour σ
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsScalarTower M A F :=
+    isScalarTower_intermediateField_inclusions M A F
+      (initialRealCore_le_initialAnalyticRealCore u)
+      W.initial_sup_analyticRealCore_le_full
+      W.initial_sup_terminalRealCore_le_full
+  let σM : Gal(F/M) := σ.restrictScalars M
+  have hcompat := W.galois_over_initialAnalytic_exp_compatible_of_quartic hfour σ
+  have hdiag :=
+    (W.exp_compatible_iff_diagonal_sign_of_finrank_eq_four hfour σM).mp (by
+      simpa [σM, AlgEquiv.restrictScalars_apply] using hcompat)
+  simpa [σM, AlgEquiv.restrictScalars_apply] using hdiag
+
+/-- Therefore a nonidentity deck transformation of the analytic quadratic cover must be the
+simultaneous terminal switch. -/
+theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_nontrivial_switch_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A :=
+      (IntermediateField.inclusion
+        (initialRealCore_le_initialAnalyticRealCore u)).toRingHom.toRatAlgHom.toAlgebra
+    letI : Algebra A F :=
+      (IntermediateField.inclusion
+        W.initial_sup_analyticRealCore_le_full).toRingHom.toRatAlgHom.toAlgebra
+    letI : Algebra M F :=
+      (IntermediateField.inclusion
+        W.initial_sup_terminalRealCore_le_full).toRingHom.toRatAlgHom.toAlgebra
+    Module.finrank M F = 4 →
+      ∀ σ : Gal(F/A), σ ≠ 1 →
+        σ (selectedInputInFull u (Fin.last (n + 2))) =
+            -selectedInputInFull u (Fin.last (n + 2)) ∧
+          σ (selectedExpInFull u (Fin.last (n + 2))) =
+            (selectedExpInFull u (Fin.last (n + 2)))⁻¹ := by
+  dsimp only
+  intro hfour σ hσ
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsScalarTower M A F :=
+    isScalarTower_intermediateField_inclusions M A F
+      (initialRealCore_le_initialAnalyticRealCore u)
+      W.initial_sup_analyticRealCore_le_full
+      W.initial_sup_terminalRealCore_le_full
+  rcases W.galois_over_initialAnalytic_diagonal_sign_of_quartic hfour σ with
+    hfix | hswitch
+  · exfalso
+    apply hσ
+    apply AlgEquiv.restrictScalars_injective M
+    apply (W.terminalSignMap_bijective_of_finrank_eq_four hfour).1
+    simp only [AlgEquiv.restrictScalars_apply, Prod.mk.injEq, decide_eq_decide]
+    exact ⟨by simpa using hfix.1, by simpa using hfix.2⟩
+  · exact hswitch
+
+/-- The analytic real-shadow Galois group has exactly two elements in the quartic branch. -/
+theorem PositiveEigenvectorTerminalWitness.natCard_initialAnalyticGalois_eq_two_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 → Nat.card Gal(F/A) = 2 := by
+  dsimp only
+  intro hfour
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsScalarTower M A F :=
+    isScalarTower_intermediateField_inclusions M A F
+      (initialRealCore_le_initialAnalyticRealCore u)
+      W.initial_sup_analyticRealCore_le_full
+      W.initial_sup_terminalRealCore_le_full
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  letI : IsGalois A F := W.isGalois_full_over_initialAnalyticRealCore
+  calc
+    Nat.card Gal(F/A) = Module.finrank A F := IsGalois.card_aut_eq_finrank A F
+    _ = 2 := W.finrank_full_over_initialAnalyticRealCore_eq_two hfour
+
+/-- More explicitly, the analytic quadratic cover has a unique nonidentity deck transformation,
+and it is characterized by negating the last input while inverting its exponential. -/
+theorem PositiveEigenvectorTerminalWitness.existsUnique_initialAnalytic_nontrivial_switch_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∃! σ : Gal(F/A), σ ≠ 1 ∧
+        σ (selectedInputInFull u (Fin.last (n + 2))) =
+            -selectedInputInFull u (Fin.last (n + 2)) ∧
+          σ (selectedExpInFull u (Fin.last (n + 2))) =
+            (selectedExpInFull u (Fin.last (n + 2)))⁻¹ := by
+  dsimp only
+  intro hfour
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsScalarTower M A F :=
+    isScalarTower_intermediateField_inclusions M A F
+      (initialRealCore_le_initialAnalyticRealCore u)
+      W.initial_sup_analyticRealCore_le_full
+      W.initial_sup_terminalRealCore_le_full
+  have hcard : Nat.card Gal(F/A) = 2 :=
+    W.natCard_initialAnalyticGalois_eq_two_of_quartic hfour
+  obtain ⟨σ, hσ, hunique⟩ :=
+    (Nat.card_eq_two_iff' (1 : Gal(F/A))).mp hcard
+  have hσswitch :=
+    W.galois_over_initialAnalytic_nontrivial_switch_of_quartic hfour σ hσ
+  refine ⟨σ, ⟨hσ, hσswitch⟩, ?_⟩
+  intro τ hτ
+  exact hunique τ hτ.1
+
+/-- Every analytic-shadow deck transformation preserves the exponential graph on the entire
+completed terminal tuple.  It fixes the prefix coordinates pointwise because their graph field
+lies in the base, and the final coordinate is handled by the mixed-invariant criterion. -/
+theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible_all_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∀ (σ : Gal(F/A)) (i : Fin (n + 3)),
+        (((σ (selectedExpInFull u i) : F) : ℂ) =
+          Complex.exp (((σ (selectedInputInFull u i) : F) : ℂ))) := by
+  dsimp only
+  intro hfour σ i
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  refine Fin.lastCases ?_ (fun j ↦ ?_) i
+  · exact W.galois_over_initialAnalytic_exp_compatible_of_quartic hfour σ
+  · have hxK : u (Fin.castSucc j) ∈ generatedField (Fin.init u) :=
+      IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨j, rfl⟩)
+    have hyK : Complex.exp (u (Fin.castSucc j)) ∈ generatedField (Fin.init u) :=
+      IntermediateField.subset_adjoin ℚ _ (Or.inr ⟨j, rfl⟩)
+    have hxA : u (Fin.castSucc j) ∈ A :=
+      (show generatedField (Fin.init u) ≤ A from le_sup_left) hxK
+    have hyA : Complex.exp (u (Fin.castSucc j)) ∈ A :=
+      (show generatedField (Fin.init u) ≤ A from le_sup_left) hyK
+    let xA : A := ⟨u (Fin.castSucc j), hxA⟩
+    let yA : A := ⟨Complex.exp (u (Fin.castSucc j)), hyA⟩
+    have hxfix : σ (selectedInputInFull u (Fin.castSucc j)) =
+        selectedInputInFull u (Fin.castSucc j) := by
+      calc
+        σ (selectedInputInFull u (Fin.castSucc j)) =
+            σ (algebraMap A F xA) := by rfl
+        _ = algebraMap A F xA := σ.commutes _
+        _ = selectedInputInFull u (Fin.castSucc j) := by rfl
+    have hyfix : σ (selectedExpInFull u (Fin.castSucc j)) =
+        selectedExpInFull u (Fin.castSucc j) := by
+      calc
+        σ (selectedExpInFull u (Fin.castSucc j)) =
+            σ (algebraMap A F yA) := by rfl
+        _ = algebraMap A F yA := σ.commutes _
+        _ = selectedExpInFull u (Fin.castSucc j) := by rfl
+    rw [hxfix, hyfix]
+    rfl
+
+/-- The element of the full graph field represented by an integral combination of the displayed
+inputs. -/
+def integralInputInFull {r : ℕ} (u : Fin r → ℂ) (m : Fin r → ℤ) : generatedField u :=
+  ∑ i, (m i) • selectedInputInFull u i
+
+/-- The product of the corresponding displayed exponential generators with the same integral
+exponents. -/
+def integralExpInFull {r : ℕ} (u : Fin r → ℂ) (m : Fin r → ℤ) : generatedField u :=
+  ∏ i, (selectedExpInFull u i) ^ (m i)
+
+@[simp]
+theorem integralInputInFull_coe {r : ℕ} (u : Fin r → ℂ) (m : Fin r → ℤ) :
+    ((integralInputInFull u m : generatedField u) : ℂ) =
+      ∑ i, (m i : ℂ) * u i := by
+  simp [integralInputInFull, selectedInputInFull, zsmul_eq_mul]
+
+/-- The integral product of the graph generators is the genuine exponential of the integral
+input combination. -/
+@[simp]
+theorem integralExpInFull_coe {r : ℕ} (u : Fin r → ℂ) (m : Fin r → ℤ) :
+    ((integralExpInFull u m : generatedField u) : ℂ) =
+      Complex.exp ((integralInputInFull u m : generatedField u) : ℂ) := by
+  rw [integralInputInFull_coe]
+  unfold integralExpInFull
+  change algebraMap (generatedField u) ℂ
+      (∏ i, (selectedExpInFull u i) ^ (m i)) =
+    Complex.exp (∑ i, (m i : ℂ) * u i)
+  rw [map_prod]
+  simp only [map_zpow₀]
+  rw [Complex.exp_sum]
+  apply Finset.prod_congr rfl
+  intro i _
+  rw [Complex.exp_int_mul]
+  rfl
+
+/-- In the quartic branch, every analytic-shadow deck transformation commutes with the genuine
+complex exponential on the entire integral lattice generated by the completed terminal tuple. -/
+theorem PositiveEigenvectorTerminalWitness.galois_initialAnalytic_exp_integralSpan_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∀ (σ : Gal(F/A)) (m : Fin (n + 3) → ℤ),
+        (((σ (integralExpInFull u m) : F) : ℂ) =
+          Complex.exp (((σ (integralInputInFull u m) : F) : ℂ))) := by
+  dsimp only
+  intro hfour σ m
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  have hcoord :=
+    W.galois_over_initialAnalytic_exp_compatible_all_of_quartic hfour σ
+  unfold integralExpInFull integralInputInFull
+  rw [map_prod, map_sum]
+  simp only [map_zpow₀, map_zsmul]
+  change algebraMap F ℂ (∏ i, (σ (selectedExpInFull u i)) ^ (m i)) =
+    Complex.exp (algebraMap F ℂ
+      (∑ i, (m i) • σ (selectedInputInFull u i)))
+  rw [map_prod, map_sum, Complex.exp_sum]
+  simp only [map_zpow₀, map_zsmul]
+  apply Finset.prod_congr rfl
+  intro i _
+  rw [zsmul_eq_mul, Complex.exp_int_mul]
+  change ((((σ (selectedExpInFull u i) : F) : ℂ) ^ (m i)) =
+    (Complex.exp (((σ (selectedInputInFull u i) : F) : ℂ))) ^ (m i))
+  exact congrArg (fun z : ℂ ↦ z ^ (m i)) (hcoord i)
+
+/-- Real coordinates relative to `1` and the standard period give a homeomorphism from the real
+plane to the complex plane. -/
+noncomputable def standardPeriodCoordHomeomorph : ℝ × ℝ ≃ₜ ℂ where
+  toFun p := (p.1 : ℂ) + (p.2 : ℂ) * standardPeriod
+  invFun z := (z.re, (z.im / (2 * Real.pi) : ℝ))
+  left_inv p := by
+    apply Prod.ext
+    · simp [standardPeriod, PeriodLogBoundary.period]
+    · simp [standardPeriod, PeriodLogBoundary.period, Real.pi_ne_zero]
+  right_inv z := by
+    apply Complex.ext
+    · simp [standardPeriod, PeriodLogBoundary.period, Complex.div_im]
+    · simp only [standardPeriod, PeriodLogBoundary.period, Complex.add_im,
+        Complex.mul_im, Complex.ofReal_im, Complex.ofReal_re, Complex.I_im,
+        Complex.I_re, zero_mul, mul_zero, add_zero]
+      field_simp [Real.pi_ne_zero]
+      norm_num
+      ring
+  continuous_toFun := by fun_prop
+  continuous_invFun := by fun_prop
+
+/-- Rational combinations of `1` and the standard period form a dense subset of `ℂ`. -/
+theorem denseRange_rat_standardPeriod :
+    DenseRange (fun p : ℚ × ℚ ↦ (p.1 : ℂ) + (p.2 : ℂ) * standardPeriod) := by
+  let f : ℚ × ℚ → ℝ × ℝ := Prod.map ((↑) : ℚ → ℝ) ((↑) : ℚ → ℝ)
+  let g : ℝ × ℝ → ℂ := standardPeriodCoordHomeomorph
+  have hf : DenseRange f := Rat.denseRange_cast.prodMap Rat.denseRange_cast
+  have hg : DenseRange g := standardPeriodCoordHomeomorph.surjective.denseRange
+  have hcomp : DenseRange (g ∘ f) :=
+    hg.comp hf standardPeriodCoordHomeomorph.continuous
+  simpa [f, g, standardPeriodCoordHomeomorph] using hcomp
+
+/-- A dense map into an ambient space stays dense after lifting its range to any containing
+subtype. -/
+theorem denseRange_subtype_mk {α X : Type*} [TopologicalSpace X]
+    {p : X → Prop} {f : α → X} (hf : DenseRange f) (hmem : ∀ a, p (f a)) :
+    DenseRange (fun a ↦ (⟨f a, hmem a⟩ : Subtype p)) := by
+  rw [DenseRange]
+  apply Subtype.dense_iff.mpr
+  have hsubset : Set.range f ⊆ ((↑) : Subtype p → X) ''
+      Set.range (fun a ↦ (⟨f a, hmem a⟩ : Subtype p)) := by
+    rintro _ ⟨a, rfl⟩
+    exact ⟨⟨f a, hmem a⟩, ⟨a, rfl⟩, rfl⟩
+  intro x _
+  apply closure_mono hsubset
+  rw [hf.closure_range]
+  exact Set.mem_univ x
+
+/-- If an intermediate-field base contains the standard period, then its image is dense in every
+larger intermediate field of `ℂ`. -/
+theorem denseRange_algebraMap_of_standardPeriod_mem
+    (A F : IntermediateField ℚ ℂ) (hAF : A ≤ F) (hω : standardPeriod ∈ A) :
+    letI : Algebra A F :=
+      (IntermediateField.inclusion hAF).toRingHom.toRatAlgHom.toAlgebra
+    DenseRange (algebraMap A F) := by
+  letI : Algebra A F :=
+    (IntermediateField.inclusion hAF).toRingHom.toRatAlgHom.toAlgebra
+  let g : ℚ × ℚ → ℂ :=
+    fun p ↦ (p.1 : ℂ) + (p.2 : ℂ) * standardPeriod
+  have hg : DenseRange g := denseRange_rat_standardPeriod
+  have hmemA (p : ℚ × ℚ) : g p ∈ A := by
+    exact A.add_mem (IntermediateField.algebraMap_mem A p.1)
+      (A.mul_mem (IntermediateField.algebraMap_mem A p.2) hω)
+  have hmemF (p : ℚ × ℚ) : g p ∈ F := hAF (hmemA p)
+  let hA : ℚ × ℚ → A := fun p ↦ ⟨g p, hmemA p⟩
+  let hF : ℚ × ℚ → F := fun p ↦ ⟨g p, hmemF p⟩
+  have hhF : DenseRange hF := denseRange_subtype_mk hg hmemF
+  rw [DenseRange] at hhF ⊢
+  apply hhF.mono
+  rintro x ⟨p, rfl⟩
+  refine ⟨hA p, ?_⟩
+  apply Subtype.ext
+  rfl
+
+/-- A continuous relative automorphism of complex intermediate fields is trivial as soon as its
+base contains the standard period: it fixes the dense rational period lattice pointwise. -/
+theorem continuous_galois_eq_one_of_standardPeriod_mem
+    (A F : IntermediateField ℚ ℂ) (hAF : A ≤ F) (hω : standardPeriod ∈ A) :
+    letI : Algebra A F :=
+      (IntermediateField.inclusion hAF).toRingHom.toRatAlgHom.toAlgebra
+    ∀ σ : Gal(F/A), Continuous σ → σ = 1 := by
+  letI : Algebra A F :=
+    (IntermediateField.inclusion hAF).toRingHom.toRatAlgHom.toAlgebra
+  intro σ hσ
+  have hd : DenseRange (algebraMap A F) :=
+    denseRange_algebraMap_of_standardPeriod_mem A F hAF hω
+  have hfun : (σ : F → F) = id := by
+    apply hd.equalizer hσ continuous_id
+    funext a
+    exact σ.commutes a
+  apply AlgEquiv.ext
+  intro x
+  exact congrFun hfun x
+
+/-- A canonically anchored graph field contains the standard period, obtained as the difference
+of its first two input generators. -/
+theorem standardPeriod_mem_generatedField_of_canonicallyAnchored
+    {n : ℕ} {u : Fin (n + 2) → ℂ} (hu : CanonicallyAnchored u) :
+    standardPeriod ∈ generatedField u := by
+  have h0 : u 0 ∈ generatedField u :=
+    IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨0, rfl⟩)
+  have h1 : u 1 ∈ generatedField u :=
+    IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨1, rfl⟩)
+  have hsub := (generatedField u).sub_mem h1 h0
+  have heq : u 1 - u 0 = standardPeriod := by
+    rw [hu.1, hu.2]
+    simp
+    ring
+  rw [heq] at hsub
+  exact hsub
+
+/-- The unique nonidentity analytic-shadow deck transformation in the quartic branch is
+necessarily discontinuous in the subspace topology inherited from `ℂ`. -/
+theorem PositiveEigenvectorTerminalWitness.nontrivial_initialAnalyticGalois_discontinuous_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∀ σ : Gal(F/A), σ ≠ 1 → ¬ Continuous σ := by
+  dsimp only
+  intro _ σ hσ hcont
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  have hωK : standardPeriod ∈ generatedField (Fin.init u) :=
+    standardPeriod_mem_generatedField_of_canonicallyAnchored W.2.2.1
+  have hωA : standardPeriod ∈ A :=
+    (show generatedField (Fin.init u) ≤ A from le_sup_left) hωK
+  exact hσ (continuous_galois_eq_one_of_standardPeriod_mem A F
+    W.initial_sup_analyticRealCore_le_full hωA σ hcont)
+
+/-- The discontinuity of a nonidentity analytic-shadow deck transformation has an explicit
+sequential witness: a sequence converges to zero while its image converges to twice the nonzero
+last input. -/
+theorem PositiveEigenvectorTerminalWitness.exists_discontinuity_sequence_of_quartic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∀ σ : Gal(F/A), σ ≠ 1 →
+        ∃ x : ℕ → F,
+          Tendsto x atTop (𝓝 0) ∧
+          Tendsto (fun k ↦ σ (x k)) atTop
+            (𝓝 (2 * selectedInputInFull u (Fin.last (n + 2)))) ∧
+          2 * selectedInputInFull u (Fin.last (n + 2)) ≠ 0 := by
+  dsimp only
+  intro hfour σ hσ
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsTopologicalAddGroup F :=
+    Topology.IsInducing.topologicalAddGroup
+      F.toSubalgebra.toSubring.subtype IsInducing.subtypeVal
+  let bF : F := selectedInputInFull u (Fin.last (n + 2))
+  have hωK : standardPeriod ∈ generatedField (Fin.init u) :=
+    standardPeriod_mem_generatedField_of_canonicallyAnchored W.2.2.1
+  have hωA : standardPeriod ∈ A :=
+    (show generatedField (Fin.init u) ≤ A from le_sup_left) hωK
+  have hd : DenseRange (algebraMap A F) :=
+    denseRange_algebraMap_of_standardPeriod_mem A F
+      W.initial_sup_analyticRealCore_le_full hωA
+  have hbcl : bF ∈ closure (Set.range (algebraMap A F)) := by
+    rw [hd.closure_range]
+    exact Set.mem_univ bF
+  obtain ⟨a, haRange, halim⟩ := mem_closure_iff_seq_limit.mp hbcl
+  have hafix (k : ℕ) : σ (a k) = a k := by
+    rcases haRange k with ⟨c, hc⟩
+    calc
+      σ (a k) = σ (algebraMap A F c) := congrArg σ hc.symm
+      _ = algebraMap A F c := σ.commutes c
+      _ = a k := hc
+  have hswitch :=
+    W.galois_over_initialAnalytic_nontrivial_switch_of_quartic hfour σ hσ
+  have hswitchb : σ bF = -bF := by
+    simpa [bF] using hswitch.1
+  let x : ℕ → F := fun k ↦ a k - bF
+  refine ⟨x, ?_, ?_, ?_⟩
+  · have hconst : Tendsto (fun _ : ℕ ↦ bF) atTop (𝓝 bF) :=
+      tendsto_const_nhds
+    simpa [x] using halim.sub hconst
+  · have hlim : Tendsto (fun k ↦ a k + bF) atTop (𝓝 (bF + bF)) :=
+      halim.add (tendsto_const_nhds : Tendsto (fun _ : ℕ ↦ bF) atTop (𝓝 bF))
+    have heq : (fun k ↦ σ (x k)) = fun k ↦ a k + bF := by
+      funext k
+      simp [x, hafix k, hswitchb]
+    rw [heq]
+    simpa [bF, two_mul] using hlim
+  · have hb0 : bF ≠ 0 := by
+      intro hb
+      exact W.last_ne_zero (congrArg Subtype.val hb)
+    exact mul_ne_zero (by norm_num) hb0
+
+/-- In fact the nonidentity analytic-shadow deck transformation already fails continuity at
+zero: the explicit sequence has incompatible limits `0` and `2b`. -/
+theorem PositiveEigenvectorTerminalWitness.nontrivial_initialAnalyticGalois_not_continuousAt_zero
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∀ σ : Gal(F/A), σ ≠ 1 → ¬ ContinuousAt σ 0 := by
+  dsimp only
+  intro hfour σ hσ hcont
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  obtain ⟨x, hx, hσx, hne⟩ :=
+    W.exists_discontinuity_sequence_of_quartic hfour σ hσ
+  have hσx0 : Tendsto (fun k ↦ σ (x k)) atTop (𝓝 0) := by
+    simpa only [map_zero] using hcont.tendsto.comp hx
+  exact hne (tendsto_nhds_unique hσx hσx0)
+
+/-- A nonidentity analytic-shadow deck transformation is nowhere continuous: continuity at any
+point would transport back to continuity at zero by additivity. -/
+theorem PositiveEigenvectorTerminalWitness.nontrivial_initialAnalyticGalois_nowhere_continuous
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank M F = 4 →
+      ∀ σ : Gal(F/A), σ ≠ 1 → ∀ z : F, ¬ ContinuousAt σ z := by
+  dsimp only
+  intro hfour σ hσ z hcont
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsTopologicalAddGroup F :=
+    Topology.IsInducing.topologicalAddGroup
+      F.toSubalgebra.toSubring.subtype IsInducing.subtypeVal
+  apply W.nontrivial_initialAnalyticGalois_not_continuousAt_zero hfour σ hσ
+  have htrans : Tendsto (fun x : F ↦ z + x) (𝓝 0) (𝓝 z) := by
+    simpa only [add_zero] using
+      (tendsto_const_nhds.add
+        (tendsto_id : Tendsto (id : F → F) (𝓝 0) (𝓝 0)))
+  have himage : Tendsto (fun x : F ↦ σ (z + x)) (𝓝 0) (𝓝 (σ z)) :=
+    hcont.tendsto.comp htrans
+  have hzero : Tendsto (fun x : F ↦ σ (z + x) - σ z) (𝓝 0) (𝓝 0) := by
+    simpa only [sub_self] using
+      himage.sub (tendsto_const_nhds : Tendsto (fun _ : F ↦ σ z) (𝓝 0) (𝓝 (σ z)))
+  change Tendsto (σ : F → F) (𝓝 0) (𝓝 (σ 0))
+  simpa only [map_add, add_sub_cancel_left, map_zero] using hzero
+
+/-- A deck transformation over the anchored analytic shadow is continuous at one (equivalently
+every) point exactly when it is the identity; no quartic assumption is needed. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalyticGalois_continuousAt_iff_eq_one
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    ∀ (σ : Gal(F/A)) (z : F), ContinuousAt σ z ↔ σ = 1 := by
+  dsimp only
+  intro σ z
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : IsTopologicalAddGroup F :=
+    Topology.IsInducing.topologicalAddGroup
+      F.toSubalgebra.toSubring.subtype IsInducing.subtypeVal
+  constructor
+  · intro hcont
+    have htrans : Tendsto (fun x : F ↦ z + x) (𝓝 0) (𝓝 z) := by
+      simpa only [add_zero] using
+        (tendsto_const_nhds.add
+          (tendsto_id : Tendsto (id : F → F) (𝓝 0) (𝓝 0)))
+    have himage : Tendsto (fun x : F ↦ σ (z + x)) (𝓝 0) (𝓝 (σ z)) :=
+      hcont.tendsto.comp htrans
+    have hzero' : Tendsto (fun x : F ↦ σ (z + x) - σ z) (𝓝 0) (𝓝 0) := by
+      simpa only [sub_self] using
+        himage.sub
+          (tendsto_const_nhds : Tendsto (fun _ : F ↦ σ z) (𝓝 0) (𝓝 (σ z)))
+    have hzero : ContinuousAt σ 0 := by
+      change Tendsto (σ : F → F) (𝓝 0) (𝓝 (σ 0))
+      simpa only [map_add, add_sub_cancel_left, map_zero] using hzero'
+    have hωK : standardPeriod ∈ generatedField (Fin.init u) :=
+      standardPeriod_mem_generatedField_of_canonicallyAnchored W.2.2.1
+    have hωA : standardPeriod ∈ A :=
+      (show generatedField (Fin.init u) ≤ A from le_sup_left) hωK
+    exact continuous_galois_eq_one_of_standardPeriod_mem A F
+      W.initial_sup_analyticRealCore_le_full hωA σ
+        (continuous_of_continuousAt_zero σ hzero)
+  · intro hσ
+    subst σ
+    simpa using (continuousAt_id : ContinuousAt (id : F → F) z)
+
+/-- The analytic-shadow cover has degree one exactly when every relative deck transformation is
+continuous at zero. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_finrank_one_iff_continuousAt_zero
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 1 ↔ ∀ σ : Gal(F/A), ContinuousAt σ 0 := by
+  dsimp only
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  letI : IsGalois A F := W.isGalois_full_over_initialAnalyticRealCore
+  constructor
+  · intro hfin σ
+    apply (W.initialAnalyticGalois_continuousAt_iff_eq_one σ 0).2
+    have hcard : Nat.card Gal(F/A) = 1 :=
+      (IsGalois.card_aut_eq_finrank A F).trans hfin
+    exact (Nat.card_eq_one_iff_unique.mp hcard).1.elim σ 1
+  · intro hall
+    letI : Subsingleton Gal(F/A) :=
+      ⟨fun σ τ ↦
+        ((W.initialAnalyticGalois_continuousAt_iff_eq_one σ 0).mp (hall σ)).trans
+          ((W.initialAnalyticGalois_continuousAt_iff_eq_one τ 0).mp (hall τ)).symm⟩
+    exact (IsGalois.card_aut_eq_finrank A F).symm.trans Nat.card_unique
+
+/-- Complementarily, the analytic-shadow cover has degree two exactly when it has a deck
+transformation that is discontinuous at every point. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_finrank_two_iff_nowhere_continuous
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 ↔
+      ∃ σ : Gal(F/A), ∀ z : F, ¬ ContinuousAt σ z := by
+  dsimp only
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  letI : IsGalois A F := W.isGalois_full_over_initialAnalyticRealCore
+  constructor
+  · intro htwo
+    have hcard : Nat.card Gal(F/A) = 2 :=
+      (IsGalois.card_aut_eq_finrank A F).trans htwo
+    obtain ⟨σ, hσ, _⟩ := (Nat.card_eq_two_iff' (1 : Gal(F/A))).mp hcard
+    refine ⟨σ, fun z hcont ↦ ?_⟩
+    exact hσ ((W.initialAnalyticGalois_continuousAt_iff_eq_one σ z).mp hcont)
+  · rintro ⟨σ, hσ⟩
+    rcases W.finrank_full_over_initialAnalyticRealCore_eq_one_or_two with hone | htwo
+    · exfalso
+      apply hσ 0
+      apply (W.initialAnalyticGalois_continuousAt_iff_eq_one σ 0).2
+      have hcard : Nat.card Gal(F/A) = 1 :=
+        (IsGalois.card_aut_eq_finrank A F).trans hone
+      exact (Nat.card_eq_one_iff_unique.mp hcard).1.elim σ 1
+    · exact htwo
+
 /-- Among the three nontrivial quartic sign sheets, the two single-generator switches fail to
 preserve the analytic exponential graph, while the simultaneous switch preserves it. -/
 theorem PositiveEigenvectorTerminalWitness.exists_galois_analytic_sign_patterns_of_finrank_eq_four
@@ -5862,6 +6551,7 @@ def PositiveQuadraticAnalyticRealEigenvectorTerminalWitness
         (Nat.card Gal(F/A) = 1 ∨ Nat.card Gal(F/A) = 2) ∧
         (Module.finrank M F = 4 →
           Module.finrank M A = 2 ∧ Module.finrank A F = 2) ∧
+        (Module.finrank M F = 4 → Nat.card Gal(F/A) = 2) ∧
         (Module.finrank M F = 4 →
           Nat.card W.terminalAnalyticCompatibleSubgroup = 2) ∧
         (Module.finrank M F = 4 →
@@ -5869,6 +6559,38 @@ def PositiveQuadraticAnalyticRealEigenvectorTerminalWitness
             (((σ (selectedExpInFull u (Fin.last (n + 2))) : F) : ℂ) =
               Complex.exp
                 (((σ (selectedInputInFull u (Fin.last (n + 2))) : F) : ℂ)))) ∧
+        (Module.finrank M F = 4 →
+          ∀ (σ : Gal(F/A)) (i : Fin (n + 3)),
+            (((σ (selectedExpInFull u i) : F) : ℂ) =
+              Complex.exp (((σ (selectedInputInFull u i) : F) : ℂ)))) ∧
+        (Module.finrank M F = 4 →
+          ∀ (σ : Gal(F/A)) (m : Fin (n + 3) → ℤ),
+            (((σ (integralExpInFull u m) : F) : ℂ) =
+              Complex.exp (((σ (integralInputInFull u m) : F) : ℂ)))) ∧
+        (Module.finrank M F = 4 →
+          ∀ σ : Gal(F/A), σ ≠ 1 → ¬ Continuous σ) ∧
+        (Module.finrank M F = 4 →
+          ∀ σ : Gal(F/A), σ ≠ 1 →
+            ∃ x : ℕ → F,
+              Tendsto x atTop (𝓝 0) ∧
+              Tendsto (fun k ↦ σ (x k)) atTop
+                (𝓝 (2 * selectedInputInFull u (Fin.last (n + 2)))) ∧
+              2 * selectedInputInFull u (Fin.last (n + 2)) ≠ 0) ∧
+        (Module.finrank M F = 4 →
+          ∀ σ : Gal(F/A), σ ≠ 1 → ¬ ContinuousAt σ 0) ∧
+        (Module.finrank M F = 4 →
+          ∀ σ : Gal(F/A), σ ≠ 1 → ∀ z : F, ¬ ContinuousAt σ z) ∧
+        (∀ (σ : Gal(F/A)) (z : F), ContinuousAt σ z ↔ σ = 1) ∧
+        (Module.finrank A F = 1 ↔
+          ∀ σ : Gal(F/A), ContinuousAt σ 0) ∧
+        (Module.finrank A F = 2 ↔
+          ∃ σ : Gal(F/A), ∀ z : F, ¬ ContinuousAt σ z) ∧
+        (Module.finrank M F = 4 →
+          ∃! σ : Gal(F/A), σ ≠ 1 ∧
+            σ (selectedInputInFull u (Fin.last (n + 2))) =
+                -selectedInputInFull u (Fin.last (n + 2)) ∧
+              σ (selectedExpInFull u (Fin.last (n + 2))) =
+                (selectedExpInFull u (Fin.last (n + 2)))⁻¹) ∧
         (IntermediateField.adjoin A
           ({u (Fin.last (n + 2))} : Set ℂ)).restrictScalars ℚ = F ∧
         (Module.finrank M F = 4 → u (Fin.last (n + 2)) ∉ A)
@@ -5886,8 +6608,20 @@ theorem PositiveEigenvectorTerminalWitness.positiveQuadraticAnalyticRealEigenvec
     W.isGalois_full_over_initialAnalyticRealCore,
     W.fullAlgebraic_initial_sup_terminalAnalyticRealCore,
     W.finrank_full_over_initialAnalyticRealCore_eq_one_or_two,
-    W.natCard_galoisGroup_over_initialAnalytic_eq_one_or_two, ?_, ?_,
+    W.natCard_galoisGroup_over_initialAnalytic_eq_one_or_two, ?_,
+    W.natCard_initialAnalyticGalois_eq_two_of_quartic,
+    ?_,
     W.galois_over_initialAnalytic_exp_compatible_of_quartic,
+    W.galois_over_initialAnalytic_exp_compatible_all_of_quartic,
+    W.galois_initialAnalytic_exp_integralSpan_of_quartic,
+    W.nontrivial_initialAnalyticGalois_discontinuous_of_quartic,
+    W.exists_discontinuity_sequence_of_quartic,
+    W.nontrivial_initialAnalyticGalois_not_continuousAt_zero,
+    W.nontrivial_initialAnalyticGalois_nowhere_continuous,
+    W.initialAnalyticGalois_continuousAt_iff_eq_one,
+    W.initialAnalytic_finrank_one_iff_continuousAt_zero,
+    W.initialAnalytic_finrank_two_iff_nowhere_continuous,
+    W.existsUnique_initialAnalytic_nontrivial_switch_of_quartic,
     W.restrictScalars_adjoin_lastInput_eq_fullField, ?_⟩
   · intro hfour
     exact ⟨W.finrank_initialAnalytic_over_initialRealCore_eq_two hfour,

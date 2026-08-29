@@ -15015,6 +15015,104 @@ exponential equation.  This still does not force the sheet to be trivial, becaus
 on one algebraic graph pair is weaker than analytic continuity or order preservation of the
 field automorphism.
 
+The residual sheet is now classified exactly, rather than only through compatibility.  Lean
+proves in the old quartic branch that
+
+`|Gal(L/A)|=2`,                                                   `(RQ51)`
+
+that every member of this group either fixes both `b,exp(b)` or sends them to
+`-b,exp(b)^(-1)`, and that there is a unique nonidentity automorphism realizing the latter
+action.  Thus the sole remaining terminal obstruction is a literal quadratic simultaneous
+switch.  Eliminating it requires information that distinguishes the actual complex exponential
+from this algebraically valid involution; no further ambiguity remains in the finite cover.
+
+This compatibility extends from the terminal pair to the entire completed witness.  Every
+`A`-automorphism fixes the prefix graph field pointwise, while `(RQ50)` handles the last
+coordinate, so Lean proves
+
+`forall sigma in Gal(L/A), forall i, sigma(exp(u_i))=exp(sigma(u_i))`. `(RQ52)`
+
+Consequently the residual involution is a genuine symmetry of every displayed graph pair in the
+finite witness.  The missing ingredient must therefore control the ambient analytic exponential
+beyond those finitely many algebraic coordinates; tuple-level compatibility alone cannot rule
+out the switch.
+
+The same conclusion propagates multiplicatively to the whole integral input lattice.  For
+`m in Z^(n+3)`, the formalization defines inside `L`
+
+`x_m=sum_i m_i*u_i`, `y_m=prod_i exp(u_i)^(m_i)=exp(x_m)`,
+
+and proves
+
+`sigma(y_m)=exp(sigma(x_m))` for every `sigma in Gal(L/A)`.       `(RQ53)`
+
+Thus even closure under all integral additive and multiplicative consequences of the displayed
+graph equations does not eliminate the quadratic switch.  Any successful final argument must
+reach beyond the discrete lattice—for example through a rigorously justified analytic,
+order-theoretic, or approximation mechanism that is unavailable to arbitrary exponential-group
+homomorphisms.
+
+The topological boundary is now explicit.  Rational combinations of `1` and the standard period
+form a dense subset of `C`; since both elements lie in the analytic base `A`, the image of `A` is
+dense in `L`.  A continuous `A`-automorphism of `L` fixes that dense subset pointwise, hence is
+the identity.  Lean therefore proves
+
+`sigma != 1 in Gal(L/A) implies sigma is discontinuous`.         `(RQ54)`
+
+In particular the unique simultaneous switch from `(RQ51)` is forced to be a wild discontinuous
+field automorphism in the inherited complex topology.  This cleanly isolates the remaining gap:
+the finite graph and integral-lattice compatibility results do not supply continuity, and a
+field automorphism of a complex subfield need not be continuous merely because it respects those
+discrete exponential values.
+
+The discontinuity is witnessed by an explicit limiting configuration.  Density supplies
+`a_k in A` with `a_k -> b`; for the nonidentity switch `sigma(b)=-b`, set `x_k=a_k-b`.  Then Lean
+checks
+
+`x_k -> 0`, while `sigma(x_k)=a_k+b -> 2*b != 0`.               `(RQ55)`
+
+Thus the obstruction is not a subtle failure of a bundled continuity proof: its jump at zero is
+forced directly by the dense fixed base and the terminal sign action.
+
+This incompatible pair of limits is also promoted to the pointwise topological statement
+
+`sigma != 1 in Gal(L/A) implies not ContinuousAt sigma 0`.       `(RQ56)`
+
+Thus continuity does not merely fail somewhere globally: it already fails at the additive
+identity, exactly where compatibility with an analytic exponential homomorphism would normally
+be propagated from local control.
+
+Additivity then propagates this negative result in the opposite direction.  Continuity at any
+`z in L` would, after translating by `z` and subtracting `sigma(z)`, imply continuity at zero.
+Consequently Lean proves the pointwise classification
+
+`sigma != 1 in Gal(L/A) implies forall z in L, not ContinuousAt sigma z`. `(RQ57)`
+
+The residual sheet is therefore nowhere continuous on the full graph field.
+
+In fact the quartic hypothesis can be removed from the exact local classification.  Density of
+the anchored analytic base, translation to zero, and additivity apply to every relative deck
+transformation.  At every point `z`, Lean proves
+
+`ContinuousAt sigma z iff sigma=1` for `sigma in Gal(L/A)`.      `(RQ58)`
+
+Thus any analytic-shadow sheets are separated perfectly by a single continuity test, whether the
+cover has degree one or two.
+
+Finite Galois cardinality turns this into an exact collapse criterion:
+
+`[L:A]=1 iff every sigma in Gal(L/A) is ContinuousAt zero`.     `(RQ59)`
+
+The remaining quadratic obstruction is therefore equivalent to failure of automatic continuity
+for the relative deck group, not merely implied by such a failure.
+
+The complementary degree is classified just as sharply:
+
+`[L:A]=2 iff some sigma in Gal(L/A) is nowhere continuous`.     `(RQ60)`
+
+Together `(RQ59)--(RQ60)` identify the entire one-or-two cover dichotomy with its topological
+behavior.
+
 Thus the terminal complex defect over a pointwise-real shadow is now at most quadratic, not
 quartic.  The old Klein-four cover remains useful because it records the two independent
 algebraic sign switches; the analytic mixed invariant quotients out their off-diagonal
@@ -15378,4 +15476,19 @@ reconstruction of the last exponential, exact simple-extension carrier and algeb
 and quadratic last-input presentation `(RQ47)` have likewise been audited with only those three
 axioms.  The mixed-invariant stabilizer and exact compatible-subgroup order `(RQ48)`, finite
 Galois analytic top `(RQ49)`, and compatibility of every analytic-top deck transformation
-`(RQ50)` have the same audit result.
+`(RQ50)` have the same audit result.  The exact order-two analytic group, diagonal action, and
+unique nonidentity simultaneous switch `(RQ51)` have likewise been audited with only those three
+axioms.  Full-tuple exponential compatibility over the analytic shadow `(RQ52)` has the same
+audit result.  The explicit integral graph lattice and compatibility of the analytic deck group
+on all its points `(RQ53)` have likewise been audited with only those three axioms.  Density of
+the rational period lattice, rigidity of continuous relative automorphisms, and forced
+discontinuity of the residual sheet `(RQ54)` have the same audit result.  The explicit sequence
+converging to zero whose switched image converges to `2*b != 0` `(RQ55)` has likewise been audited
+with only those three axioms.  The resulting failure of continuity at zero `(RQ56)` has the same
+audit result.  Its additive propagation to nowhere-continuity `(RQ57)` has likewise been audited
+with only those three axioms.  The quartic-free exact pointwise continuity classification
+`(RQ58)` has the same audit result.
+The exact automatic-continuity/degree-one collapse criterion `(RQ59)` has likewise been audited
+with only those three axioms.
+The complementary degree-two/nowhere-continuous classification `(RQ60)` has the same audit
+result.
