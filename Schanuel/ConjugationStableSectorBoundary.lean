@@ -2,6 +2,7 @@ import Schanuel.ConjugationStableTerminal
 import Mathlib.Algebra.Polynomial.Degree.IsMonicOfDegree
 import Mathlib.FieldTheory.Relrank
 import Mathlib.GroupTheory.SpecificGroups.KleinFour
+import Mathlib.RingTheory.Norm.Transitivity
 
 /-!
 # Real and imaginary sectors of a conjugation-stable failure
@@ -6736,6 +6737,122 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalyticBranchDichotomy
     (W : PositiveEigenvectorTerminalWitness u) :
     W.InitialAnalyticBranchDichotomy := by
   exact W.initialAnalytic_branch_dichotomy
+
+/-- In the residual quadratic branch, field trace and norm record the simultaneous switch
+exactly: the last input has trace zero and norm minus its square, while its exponential has its
+reciprocal trace and norm one. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_trace_norm_of_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 →
+      algebraMap A F (Algebra.trace A F
+          (selectedInputInFull u (Fin.last (n + 2)))) = 0 ∧
+        algebraMap A F (Algebra.norm A
+          (selectedInputInFull u (Fin.last (n + 2)))) =
+            -(selectedInputInFull u (Fin.last (n + 2))) ^ 2 ∧
+        algebraMap A F (Algebra.trace A F
+          (selectedExpInFull u (Fin.last (n + 2)))) =
+            selectedExpInFull u (Fin.last (n + 2)) +
+              (selectedExpInFull u (Fin.last (n + 2)))⁻¹ ∧
+        algebraMap A F (Algebra.norm A
+          (selectedExpInFull u (Fin.last (n + 2)))) = 1 := by
+  dsimp only
+  classical
+  intro htwo
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  letI : IsGalois A F := W.isGalois_full_over_initialAnalyticRealCore
+  let b := selectedInputInFull u (Fin.last (n + 2))
+  let y := selectedExpInFull u (Fin.last (n + 2))
+  have hcard : Nat.card Gal(F/A) = 2 :=
+    (IsGalois.card_aut_eq_finrank A F).trans htwo
+  obtain ⟨σ, hσ, hunique⟩ :=
+    (Nat.card_eq_two_iff' (1 : Gal(F/A))).mp hcard
+  have hswitch := W.galois_over_initialAnalytic_nontrivial_switch σ hσ
+  have huniv : (Finset.univ : Finset Gal(F/A)) =
+      ({σ, 1} : Finset Gal(F/A)) := by
+    ext τ
+    simp only [Finset.mem_univ, Finset.mem_insert, Finset.mem_singleton, true_iff]
+    by_cases hτ : τ = 1
+    · exact Or.inr hτ
+    · exact Or.inl (hunique τ hτ)
+  have htraceb := trace_eq_sum_automorphisms (K := A) (L := F) b
+  have hnormb := Algebra.norm_eq_prod_automorphisms (K := A) (L := F) b
+  have htracey := trace_eq_sum_automorphisms (K := A) (L := F) y
+  have hnormy := Algebra.norm_eq_prod_automorphisms (K := A) (L := F) y
+  rw [huniv] at htraceb hnormb htracey hnormy
+  simp [hσ] at htraceb hnormb htracey hnormy
+  rw [hswitch.1] at htraceb hnormb
+  rw [hswitch.2] at htracey hnormy
+  have hy0 : selectedExpInFull u (Fin.last (n + 2)) ≠ 0 := by
+    intro hzero
+    have hcoe := congrArg ((↑) : F → ℂ) hzero
+    exact Complex.exp_ne_zero (u (Fin.last (n + 2))) hcoe
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · simpa [b] using htraceb
+  · simpa [b, pow_two] using hnormb
+  · simpa [y, add_comm] using htracey
+  · simpa [y, hy0] using hnormy
+
+/-- The unique quadratic simultaneous switch has no accidental fixed elements: its fixed
+subfield is exactly the embedded analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.existsUnique_initialAnalytic_switch_with_fixedField
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 →
+      ∃! σ : Gal(F/A), σ ≠ 1 ∧
+        σ (selectedInputInFull u (Fin.last (n + 2))) =
+            -selectedInputInFull u (Fin.last (n + 2)) ∧
+          σ (selectedExpInFull u (Fin.last (n + 2))) =
+            (selectedExpInFull u (Fin.last (n + 2)))⁻¹ ∧
+          ∀ z : F, σ z = z ↔ z ∈ Set.range (algebraMap A F) := by
+  dsimp only
+  intro htwo
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  letI : IsGalois A F := W.isGalois_full_over_initialAnalyticRealCore
+  obtain ⟨σ, ⟨hσ, hb, hy⟩, hunique⟩ :=
+    W.existsUnique_initialAnalytic_switch_of_finrank_two htwo
+  refine ⟨σ, ⟨hσ, hb, hy, ?_⟩, ?_⟩
+  · intro z
+    constructor
+    · intro hz
+      apply (IsGalois.mem_range_algebraMap_iff_fixed z).mpr
+      intro τ
+      by_cases hτ : τ = 1
+      · rw [hτ]
+        rfl
+      · rw [hunique τ (by
+          exact ⟨hτ, W.galois_over_initialAnalytic_nontrivial_switch τ hτ⟩)]
+        exact hz
+    · rintro ⟨a, rfl⟩
+      exact σ.commutes a
+  · intro τ hτ
+    exact hunique τ ⟨hτ.1, hτ.2.1, hτ.2.2.1⟩
 
 /-- Every nonidentity analytic-shadow deck transformation has an explicit discontinuity
 sequence at zero, without any quartic assumption. -/

@@ -216,7 +216,9 @@ not presented as a solution of the full task.
   simultaneous switch.  This branch is named as a reusable proposition and exposed directly in
   a package-free global equivalence with failure of the conjecture.  The larger quadratic
   analytic terminal witness retains the complete quartic sign action and supplies the strongest
-  quantitative version of the same final disjoint equivalence.
+  quantitative version of the same final disjoint equivalence.  In the quadratic branch the
+  input and exponential have exact traces `0` and `y+y⁻¹`, exact norms `−b²` and `1`, and the
+  unique switch fixes precisely the embedded analytic-shadow field.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

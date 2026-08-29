@@ -15196,6 +15196,19 @@ Thus a putative global counterexample yields literally either the collapsed anal
 the unique quadratic wild switch above; recovering the underlying terminal witness from this
 endpoint is immediate.
 
+The quadratic branch now has exact Galois averages.  Writing `y=exp(b)`, Lean proves after
+embedding the trace and norm back into `L`:
+
+`Tr_(L/A)(b)=0`, `N_(L/A)(b)=-b^2`,
+`Tr_(L/A)(y)=y+y^(-1)`, `N_(L/A)(y)=1`.                 `(RQ78)`
+
+Moreover the unique switch has no accidental fixed elements: `sigma(z)=z` holds exactly when
+`z` lies in the embedded analytic base `A`.                          `(RQ79)`
+
+Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
+residual sheet are explicit.  These identities sharpen the descent target but do not supply the
+missing automatic continuity.
+
 Thus the terminal complex defect over a pointwise-real shadow is now at most quadratic, not
 quartic.  The old Klein-four cover remains useful because it records the two independent
 algebraic sign switches; the analytic mixed invariant quotients out their off-diagonal
@@ -15593,3 +15606,5 @@ been audited with only those three axioms.
 The exhaustive collapse-versus-unique-wild-switch dichotomy `(RQ76)` has the same audit result.
 Its named branch proposition and package-free global equivalence `(RQ77)` have likewise been
 audited with only those three axioms.
+The exact terminal trace/norm identities `(RQ78)` and exact fixed-field characterization of the
+unique switch `(RQ79)` have the same audit result.
