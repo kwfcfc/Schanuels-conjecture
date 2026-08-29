@@ -6666,6 +6666,77 @@ theorem PositiveEigenvectorTerminalWitness.nonempty_initialAnalyticGalois_mulEqu
   refine ⟨mulEquivOfPrimeCardEq hcard ?_⟩
   simp
 
+/-- The analytic-shadow cover has an exhaustive concrete dichotomy: it either collapses
+literally, or it has a unique nowhere-continuous simultaneous switch. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_branch_dichotomy
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    (A = F ∧ ∀ σ : Gal(F/A), σ = 1) ∨
+      (u (Fin.last (n + 2)) ∉ A ∧ Module.finrank A F = 2 ∧
+        ∃! σ : Gal(F/A), σ ≠ 1 ∧
+          σ (selectedInputInFull u (Fin.last (n + 2))) =
+              -selectedInputInFull u (Fin.last (n + 2)) ∧
+            σ (selectedExpInFull u (Fin.last (n + 2))) =
+              (selectedExpInFull u (Fin.last (n + 2)))⁻¹ ∧
+            ∀ z : F, ¬ ContinuousAt σ z) := by
+  dsimp only
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  rcases W.finrank_full_over_initialAnalyticRealCore_eq_one_or_two with hone | htwo
+  · left
+    refine ⟨(W.initialAnalytic_eq_full_iff_finrank_one).mpr hone, ?_⟩
+    have hcont := (W.initialAnalytic_finrank_one_iff_continuousAt_zero).mp hone
+    intro σ
+    exact (W.initialAnalyticGalois_continuousAt_iff_eq_one σ 0).mp (hcont σ)
+  · right
+    refine ⟨(W.lastInput_not_mem_initialAnalytic_iff_finrank_two).mpr htwo,
+      htwo, ?_⟩
+    obtain ⟨σ, ⟨hσ, hb, hy⟩, hunique⟩ :=
+      W.existsUnique_initialAnalytic_switch_of_finrank_two htwo
+    refine ⟨σ, ⟨hσ, hb, hy, ?_⟩, ?_⟩
+    · intro z hcont
+      exact hσ ((W.initialAnalyticGalois_continuousAt_iff_eq_one σ z).mp hcont)
+    · intro τ hτ
+      exact hunique τ ⟨hτ.1, hτ.2.1, hτ.2.2.1⟩
+
+/-- The reusable proposition underlying the analytic-shadow branch dichotomy.  Naming it makes
+the concrete collapse/wild-switch alternative available inside package-free existential normal
+forms without repeating its field-tower data. -/
+def PositiveEigenvectorTerminalWitness.InitialAnalyticBranchDichotomy
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) : Prop :=
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  (A = F ∧ ∀ σ : Gal(F/A), σ = 1) ∨
+    (u (Fin.last (n + 2)) ∉ A ∧ Module.finrank A F = 2 ∧
+      ∃! σ : Gal(F/A), σ ≠ 1 ∧
+        σ (selectedInputInFull u (Fin.last (n + 2))) =
+            -selectedInputInFull u (Fin.last (n + 2)) ∧
+          σ (selectedExpInFull u (Fin.last (n + 2))) =
+            (selectedExpInFull u (Fin.last (n + 2)))⁻¹ ∧
+          ∀ z : F, ¬ ContinuousAt σ z)
+
+/-- Every terminal witness satisfies its named analytic-shadow branch proposition. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalyticBranchDichotomy
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    W.InitialAnalyticBranchDichotomy := by
+  exact W.initialAnalytic_branch_dichotomy
+
 /-- Every nonidentity analytic-shadow deck transformation has an explicit discontinuity
 sequence at zero, without any quartic assumption. -/
 theorem PositiveEigenvectorTerminalWitness.exists_initialAnalytic_discontinuity_sequence
@@ -7179,6 +7250,14 @@ def PositiveQuadraticAnalyticRealEigenvectorTerminalWitness
                 (selectedExpInFull u (Fin.last (n + 2)))⁻¹) ∧
         (Module.finrank A F = 2 →
           Nonempty (Gal(F/A) ≃* Multiplicative (ZMod 2))) ∧
+        ((A = F ∧ ∀ σ : Gal(F/A), σ = 1) ∨
+          (u (Fin.last (n + 2)) ∉ A ∧ Module.finrank A F = 2 ∧
+            ∃! σ : Gal(F/A), σ ≠ 1 ∧
+              σ (selectedInputInFull u (Fin.last (n + 2))) =
+                  -selectedInputInFull u (Fin.last (n + 2)) ∧
+                σ (selectedExpInFull u (Fin.last (n + 2))) =
+                  (selectedExpInFull u (Fin.last (n + 2)))⁻¹ ∧
+                ∀ z : F, ¬ ContinuousAt σ z)) ∧
         (∀ σ : Gal(F/A), σ ≠ 1 →
           ∃ x : ℕ → F,
             Tendsto x atTop (𝓝 0) ∧
@@ -7240,6 +7319,7 @@ theorem PositiveEigenvectorTerminalWitness.positiveQuadraticAnalyticRealEigenvec
     W.galois_initialAnalytic_exp_integralSpan,
     W.existsUnique_initialAnalytic_switch_of_finrank_two,
     W.nonempty_initialAnalyticGalois_mulEquiv_zmod_two,
+    W.initialAnalytic_branch_dichotomy,
     W.exists_initialAnalytic_discontinuity_sequence,
     W.exists_initialAnalytic_discontinuity_sequence_at,
     W.existsUnique_initialAnalytic_nontrivial_switch_of_quartic,
@@ -7288,6 +7368,34 @@ theorem not_conjecture_iff_quadraticAnalyticRealEigenvectorTerminalNormalFormDic
     · exact Or.inr
         ⟨hcore, n, u, W.positiveQuadraticAnalyticRealEigenvectorTerminalWitness⟩
   · rintro (hdep | ⟨hcore, n, u, ⟨-, W, -⟩⟩)
+    · exact Or.inl hdep
+    · exact Or.inr ⟨hcore, n, u, W⟩
+
+/-- A positive terminal witness together with its explicit analytic collapse/wild-switch
+alternative, stripped of the larger quantitative conjunction package. -/
+def PositiveAnalyticBranchEigenvectorTerminalWitness
+    {n : ℕ} (u : Fin (n + 3) → ℂ) : Prop :=
+  ∃ W : PositiveEigenvectorTerminalWitness u,
+    W.InitialAnalyticBranchDichotomy
+
+/-- The package-free global endpoint exposing the analytic-shadow branch literally. -/
+def AnalyticBranchEigenvectorTerminalNormalFormDichotomy : Prop :=
+  ¬ AlgebraicIndependent ℚ realAnchorCore ∨
+    (AlgebraicIndependent ℚ realAnchorCore ∧
+      ∃ (n : ℕ) (u : Fin (n + 3) → ℂ),
+        PositiveAnalyticBranchEigenvectorTerminalWitness u)
+
+/-- Failure of Schanuel is exactly anchor dependence or a positive terminal witness whose
+analytic shadow either equals the full graph field or has one unique nowhere-continuous
+simultaneous sign switch. -/
+theorem not_conjecture_iff_analyticBranchEigenvectorTerminalNormalFormDichotomy :
+    ¬ Conjecture ↔ AnalyticBranchEigenvectorTerminalNormalFormDichotomy := by
+  rw [not_conjecture_iff_realEigenvectorTerminalNormalFormDichotomy]
+  constructor
+  · rintro (hdep | ⟨hcore, n, u, W⟩)
+    · exact Or.inl hdep
+    · exact Or.inr ⟨hcore, n, u, W, W.initialAnalyticBranchDichotomy⟩
+  · rintro (hdep | ⟨hcore, n, u, W, -⟩)
     · exact Or.inl hdep
     · exact Or.inr ⟨hcore, n, u, W⟩
 

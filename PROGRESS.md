@@ -15175,6 +15175,27 @@ Finally, the degree-two analytic deck group is identified abstractly, not only c
 This matches the concrete unique simultaneous switch from `(RQ69)` with the canonical cyclic
 group of order two.
 
+All of these statements are assembled into one exhaustive branch theorem.  Every analytic top
+satisfies exactly the following structural alternative:
+
+* `A=L`, and every relative automorphism is the identity; or
+* `b notin A`, `[L:A]=2`, and there is a unique nonidentity simultaneous switch, which is nowhere
+  continuous on `L`.                                               `(RQ76)`
+
+This is the sharpest current terminal normal form: the second branch is the sole remaining
+obstruction after the mixed analytic invariant has been adjoined.
+
+The branch proposition is now named independently of the large quantitative witness package,
+and the global reduction exposes it without any packaging loss:
+
+`not Schanuel iff not AI_Q(pi^2,e)`
+`  or (AI_Q(pi^2,e) and exists a positive terminal witness satisfying the explicit branch)`.
+                                                                    `(RQ77)`
+
+Thus a putative global counterexample yields literally either the collapsed analytic cover or
+the unique quadratic wild switch above; recovering the underlying terminal witness from this
+endpoint is immediate.
+
 Thus the terminal complex defect over a pointwise-real shadow is now at most quadratic, not
 quartic.  The old Klein-four cover remains useful because it records the two independent
 algebraic sign switches; the analytic mixed invariant quotients out their off-diagonal
@@ -15569,3 +15590,6 @@ The quartic-free discontinuity sequence at zero `(RQ73)` and its translated witn
 point `(RQ74)` have the same audit result.
 The cyclic order-two identification of the degree-two analytic Galois group `(RQ75)` has likewise
 been audited with only those three axioms.
+The exhaustive collapse-versus-unique-wild-switch dichotomy `(RQ76)` has the same audit result.
+Its named branch proposition and package-free global equivalence `(RQ77)` have likewise been
+audited with only those three axioms.

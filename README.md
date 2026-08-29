@@ -210,10 +210,13 @@ not presented as a solution of the full task.
   whole completed tuple, and its integral graph lattice, again without a quartic hypothesis.
   Every nonidentity sheet has an explicit incompatible limiting sequence not only at zero but,
   after translation, at every point of the full graph field.  In degree two the relative Galois
-  group is abstractly identified with the multiplicative form of `ZMod 2`.  The
-  resulting quadratic analytic terminal witness, while retaining the complete quartic sign
-  action, is incorporated into the strongest final disjoint equivalence with failure of the
-  conjecture.
+  group is abstractly identified with the multiplicative form of `ZMod 2`.  These results assemble
+  into an exhaustive alternative: either the analytic shadow equals the full field and every deck
+  transformation is identity, or the last input is absent and there is a unique nowhere-continuous
+  simultaneous switch.  This branch is named as a reusable proposition and exposed directly in
+  a package-free global equivalence with failure of the conjecture.  The larger quadratic
+  analytic terminal witness retains the complete quartic sign action and supplies the strongest
+  quantitative version of the same final disjoint equivalence.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over
