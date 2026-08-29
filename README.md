@@ -199,7 +199,18 @@ not presented as a solution of the full task.
   at any prescribed point exactly when it is the identity, with this last classification requiring
   no quartic assumption.  In fact the analytic top has degree one exactly when every relative
   automorphism is continuous at zero, and has degree two exactly when some relative automorphism
-  is nowhere continuous.  This gives a precise automatic-continuity collapse criterion.  The
+  is nowhere continuous.  Relative degree one is also equivalent to literal equality of the
+  analytic shadow and the full graph field, so universal continuity at zero is exactly literal
+  collapse of that cover.  Since the full field is generated over the analytic shadow by the last
+  input alone, these are also equivalent to membership of that last input in the analytic base;
+  conversely, exclusion of that generator is exactly the quadratic, nowhere-continuous branch.
+  Without any quartic hypothesis, every nonidentity automorphism in that branch simultaneously
+  negates the last input and inverts its exponential; in degree two it is unique.  Consequently
+  every analytic-shadow automorphism preserves the exponential graph on the terminal pair, the
+  whole completed tuple, and its integral graph lattice, again without a quartic hypothesis.
+  Every nonidentity sheet has an explicit incompatible limiting sequence not only at zero but,
+  after translation, at every point of the full graph field.  In degree two the relative Galois
+  group is abstractly identified with the multiplicative form of `ZMod 2`.  The
   resulting quadratic analytic terminal witness, while retaining the complete quartic sign
   action, is incorporated into the strongest final disjoint equivalence with failure of the
   conjecture.

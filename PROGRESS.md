@@ -15113,6 +15113,68 @@ The complementary degree is classified just as sharply:
 Together `(RQ59)--(RQ60)` identify the entire one-or-two cover dichotomy with its topological
 behavior.
 
+Relative finrank removes the last notational distinction between degree and literal field
+collapse:
+
+`A=L iff [L:A]=1`.                                               `(RQ61)`
+
+Combining this with `(RQ59)` yields the field-theoretic endpoint
+
+`A=L iff every sigma in Gal(L/A) is ContinuousAt zero`.         `(RQ62)`
+
+Thus automatic continuity would not merely reduce the obstruction: it would identify the full
+graph field with its pointwise-real analytic shadow exactly.
+
+The simple-generator presentation `L=A(b)` makes the same dichotomy visible on the terminal input:
+
+`b in A iff [L:A]=1`,                                           `(RQ63)`
+`A=L iff b in A`,                                               `(RQ64)`
+`b in A iff every sigma in Gal(L/A) is ContinuousAt zero`.     `(RQ65)`
+
+Accordingly, the residual branch is now concentrated in one literal membership question for the
+last input.
+
+The complementary statements are exact as well:
+
+`b notin A iff [L:A]=2`,                                        `(RQ66)`
+`b notin A iff some sigma in Gal(L/A) is nowhere continuous`.  `(RQ67)`
+
+Hence absence of the sole generator, quadratic degree, and topological wildness are three
+equivalent descriptions of the same remaining obstruction.
+
+The terminal action itself no longer needs the old quartic hypothesis.  Since `L=A(b)`, any
+relative automorphism fixing `b` is the identity.  A nonidentity automorphism therefore sends
+`b` to `-b`; fixing the mixed invariant then forces the output action as well:
+
+`sigma != 1 implies sigma(b)=-b and sigma(exp(b))=exp(b)^(-1)`. `(RQ68)`
+
+Thus the simultaneous switch classification applies to every nontrivial analytic-shadow cover,
+including a quadratic cover arising from a lower-degree square/trace branch.
+
+In degree two the group-cardinality calculation gives a unique such nonidentity switch, now with
+the hypothesis stated directly as `[L:A]=2`.                            `(RQ69)`
+
+The identity/switch dichotomy removes the quartic assumptions from the compatibility results as
+well.  Every `sigma in Gal(L/A)` preserves the genuine exponential equation on the terminal pair
+`(RQ70)`, on every coordinate of the completed tuple `(RQ71)`, and on its entire integral graph
+lattice `(RQ72)`.  These are properties of the analytic shadow itself, not artifacts of the
+larger Klein-four presentation.
+
+The explicit topological witness also becomes quartic-free.  Every nonidentity analytic deck
+transformation admits `x_k -> 0` with `sigma(x_k) -> 2*b != 0`.  `(RQ73)`  Translating that
+sequence by an arbitrary `z in L` gives `x_k -> z` while
+`sigma(x_k) -> sigma(z)+2*b != sigma(z)`.                         `(RQ74)`
+
+Thus nowhere-continuity is witnessed by a concrete incompatible sequence at every point, in
+every nontrivial analytic-shadow branch.
+
+Finally, the degree-two analytic deck group is identified abstractly, not only counted:
+
+`[L:A]=2 implies Gal(L/A) is multiplicatively equivalent to ZMod 2`. `(RQ75)`
+
+This matches the concrete unique simultaneous switch from `(RQ69)` with the canonical cyclic
+group of order two.
+
 Thus the terminal complex defect over a pointwise-real shadow is now at most quadratic, not
 quartic.  The old Klein-four cover remains useful because it records the two independent
 algebraic sign switches; the analytic mixed invariant quotients out their off-diagonal
@@ -15492,3 +15554,18 @@ The exact automatic-continuity/degree-one collapse criterion `(RQ59)` has likewi
 with only those three axioms.
 The complementary degree-two/nowhere-continuous classification `(RQ60)` has the same audit
 result.
+Literal equality of the analytic shadow with the full graph field at relative degree one
+`(RQ61)`, and its exact automatic-continuity reformulation `(RQ62)`, have likewise been audited
+with only those three axioms.
+The last-input membership criterion `(RQ63)`, literal field-collapse criterion `(RQ64)`, and
+their automatic-continuity formulation `(RQ65)` have the same audit result.
+The complementary last-input exclusion/degree-two criterion `(RQ66)` and its nowhere-continuous
+deck-transformation form `(RQ67)` have likewise been audited with only those three axioms.
+The degree-independent simultaneous-switch theorem `(RQ68)` has the same audit result.
+The degree-two unique-switch theorem `(RQ69)` and quartic-free terminal, full-tuple, and
+integral-lattice compatibility theorems `(RQ70)--(RQ72)` have likewise been audited with only
+those three axioms.
+The quartic-free discontinuity sequence at zero `(RQ73)` and its translated witness at every
+point `(RQ74)` have the same audit result.
+The cyclic order-two identification of the degree-two analytic Galois group `(RQ75)` has likewise
+been audited with only those three axioms.
