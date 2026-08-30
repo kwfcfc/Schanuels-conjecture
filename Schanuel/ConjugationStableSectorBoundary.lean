@@ -3384,6 +3384,26 @@ theorem PositiveEigenvectorTerminalWitness.terminalInput_mem_adjoin_lastExp_init
   rw [hid]
   exact N.mul_mem hcN (N.inv_mem (N.sub_mem hyN (N.inv_mem hyN)))
 
+/-- Over the analytic shadow, the last input and its exponential generate literally the same
+intermediate field inside `ℂ`. -/
+theorem PositiveEigenvectorTerminalWitness.adjoin_lastInput_eq_adjoin_lastExp_initialAnalytic
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    IntermediateField.adjoin A ({u (Fin.last (n + 2))} : Set ℂ) =
+      IntermediateField.adjoin A
+        ({Complex.exp (u (Fin.last (n + 2)))} : Set ℂ) := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  apply le_antisymm
+  · rw [IntermediateField.adjoin_le_iff]
+    rintro x (rfl : x = b)
+    exact W.terminalInput_mem_adjoin_lastExp_initialAnalytic
+  · rw [IntermediateField.adjoin_le_iff]
+    rintro x (rfl : x = y)
+    exact W.terminalExp_mem_adjoin_lastInput_initialAnalytic
+
 /-- Adjoining only the last exponential over the analytic shadow recovers the full graph field,
 just as adjoining only the last input does. -/
 theorem PositiveEigenvectorTerminalWitness.restrictScalars_adjoin_lastExp_eq_fullField
@@ -6519,6 +6539,122 @@ theorem PositiveEigenvectorTerminalWitness.lastInput_not_mem_initialAnalytic_iff
   have htop := W.initialAnalytic_finrank_two_iff_nowhere_continuous
   dsimp only at hmem htop
   exact hmem.trans htop
+
+/-- Symmetrically, the last exponential belongs to the analytic shadow exactly in the degree-one
+branch. -/
+theorem PositiveEigenvectorTerminalWitness.lastExp_mem_initialAnalytic_iff_finrank_one
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    Complex.exp (u (Fin.last (n + 2))) ∈ A ↔ Module.finrank A F = 1 := by
+  dsimp only
+  let y := Complex.exp (u (Fin.last (n + 2)))
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  rw [← W.terminalAnalyticLastExpFullAlgEquiv.toLinearEquiv.finrank_eq,
+    IntermediateField.finrank_adjoin_simple_eq_one_iff]
+  change y ∈ A ↔ y ∈ (⊥ : IntermediateField A ℂ)
+  rw [IntermediateField.mem_bot]
+  constructor
+  · intro hy
+    exact ⟨⟨y, hy⟩, rfl⟩
+  · rintro ⟨a, ha⟩
+    rw [← ha]
+    exact a.property
+
+/-- Literal collapse of the analytic-shadow cover is also exactly membership of the last
+exponential in the base. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_eq_full_iff_lastExp_mem
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    A = F ↔ Complex.exp (u (Fin.last (n + 2))) ∈ A := by
+  dsimp only
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  change A = F ↔ Complex.exp (u (Fin.last (n + 2))) ∈ A
+  exact W.initialAnalytic_eq_full_iff_finrank_one.trans
+    W.lastExp_mem_initialAnalytic_iff_finrank_one.symm
+
+/-- Membership of the last exponential in the analytic shadow is exactly automatic continuity
+at zero for every relative deck transformation. -/
+theorem PositiveEigenvectorTerminalWitness.lastExp_mem_initialAnalytic_iff_continuousAt_zero
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Complex.exp (u (Fin.last (n + 2))) ∈ A ↔
+      ∀ σ : Gal(F/A), ContinuousAt σ 0 := by
+  dsimp only
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  change Complex.exp (u (Fin.last (n + 2))) ∈ A ↔
+    ∀ σ : Gal(F/A), ContinuousAt σ 0
+  exact W.lastExp_mem_initialAnalytic_iff_finrank_one.trans
+    W.initialAnalytic_finrank_one_iff_continuousAt_zero
+
+/-- Exclusion of the last exponential from the analytic shadow is exactly the degree-two
+branch. -/
+theorem PositiveEigenvectorTerminalWitness.lastExp_not_mem_initialAnalytic_iff_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    Complex.exp (u (Fin.last (n + 2))) ∉ A ↔ Module.finrank A F = 2 := by
+  dsimp only
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  have hmem := W.lastExp_mem_initialAnalytic_iff_finrank_one
+  dsimp only at hmem
+  constructor
+  · intro hy
+    rcases W.finrank_full_over_initialAnalyticRealCore_eq_one_or_two with hone | htwo
+    · exact False.elim (hy (hmem.mpr hone))
+    · exact htwo
+  · intro htwo hy
+    have hone := hmem.mp hy
+    omega
+
+/-- Thus the last exponential is absent from the analytic shadow exactly when the cover contains
+a nowhere-continuous deck transformation. -/
+theorem PositiveEigenvectorTerminalWitness.lastExp_not_mem_initialAnalytic_iff_nowhere_continuous
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Complex.exp (u (Fin.last (n + 2))) ∉ A ↔
+      ∃ σ : Gal(F/A), ∀ z : F, ¬ ContinuousAt σ z := by
+  dsimp only
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  change Complex.exp (u (Fin.last (n + 2))) ∉ A ↔
+    ∃ σ : Gal(F/A), ∀ z : F, ¬ ContinuousAt σ z
+  exact W.lastExp_not_mem_initialAnalytic_iff_finrank_two.trans
+    W.initialAnalytic_finrank_two_iff_nowhere_continuous
 
 /-- Every nonidentity automorphism over the analytic shadow is the simultaneous terminal switch,
 without any assumption on the old square/trace-cover degree. -/

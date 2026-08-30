@@ -15244,6 +15244,15 @@ the literal full graph field `(RQ85)`.  The corresponding simple extension is ex
 
 These reconstruction statements require no relative-degree or quartic hypothesis: either member
 of the terminal graph pair generates the full field over the analytic shadow in every branch.
+In fact the two simple extensions are literally the same intermediate field inside `C`:
+
+`A(b)=A(y)`.                                                   `(RQ87)`
+
+The exponential generator therefore supplies a fully symmetric branch detector.  Membership
+`y in A` is equivalent to relative degree one `(RQ88)`, and hence also to literal collapse
+`A=generatedField(u)` `(RQ89)` and continuity at zero of every analytic-shadow deck
+transformation `(RQ90)`.  Complementarily, `y notin A` is equivalent to relative degree two
+`(RQ91)` and to the existence of a nowhere-continuous deck transformation `(RQ92)`.
 
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
@@ -15657,3 +15666,6 @@ The rational reconstruction of the last input from the last exponential `(RQ84)`
 restriction-of-scalars recovery of the full graph field `(RQ85)`, and the resulting symmetric
 simple-extension algebra equivalence `(RQ86)` have likewise been audited with only those three
 axioms.
+Literal equality of the last-input and last-exponential simple extensions `(RQ87)`, together
+with the exponential membership/collapse/continuity criteria `(RQ88)--(RQ90)` and complementary
+degree-two/nowhere-continuous criteria `(RQ91)--(RQ92)`, has the same audit result.
