@@ -3269,6 +3269,68 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_quadratic_coefficient
     rw [terminalExpTrace_discriminant_eq_odd_sq]
     ring
 
+/-- The terminal exponential and its inverse have opposite nonzero affine last-input coordinates
+over the analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_terminalExp_affine_coordinates
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    ∃ a d : A,
+      d ≠ 0 ∧
+      (a : ℂ) = (Complex.exp (u (Fin.last (n + 2))) +
+        (Complex.exp (u (Fin.last (n + 2))))⁻¹) / 2 ∧
+      (d : ℂ) = eigenvectorTerminalCrossInvariant u /
+        (2 * u (Fin.last (n + 2)) ^ 2) ∧
+      Complex.exp (u (Fin.last (n + 2))) =
+        (a : ℂ) + (d : ℂ) * u (Fin.last (n + 2)) ∧
+      (Complex.exp (u (Fin.last (n + 2))))⁻¹ =
+        (a : ℂ) - (d : ℂ) * u (Fin.last (n + 2)) := by
+  dsimp only
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let c := eigenvectorTerminalCrossInvariant u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  have hb2A : b ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert (b ^ 2) _)
+  have htA : y + y⁻¹ ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _
+      (Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton _)))
+  have hcA : c ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    exact terminalCrossInvariant_mem_analyticRealCore u
+  let b2 : A := ⟨b ^ 2, hb2A⟩
+  let t : A := ⟨y + y⁻¹, htA⟩
+  let cA : A := ⟨c, hcA⟩
+  let a : A := t / 2
+  let d : A := cA / (2 * b2)
+  have hb20 : b2 ≠ 0 := by
+    intro hb2
+    apply W.last_ne_zero
+    have h := congrArg ((↑) : A → ℂ) hb2
+    change b ^ 2 = 0 at h
+    exact eq_zero_of_pow_eq_zero h
+  have hc0 : cA ≠ 0 := by
+    intro hc
+    apply W.terminalCrossInvariant_ne_zero
+    exact congrArg ((↑) : A → ℂ) hc
+  have hd0 : d ≠ 0 := div_ne_zero hc0 (mul_ne_zero (by norm_num) hb20)
+  have hodd : (c / (2 * b ^ 2)) * b = (y - y⁻¹) / 2 := by
+    change ((b * (y - y⁻¹)) / (2 * b ^ 2)) * b = (y - y⁻¹) / 2
+    have hb0 : b ≠ 0 := W.last_ne_zero
+    have hy0 : y ≠ 0 := Complex.exp_ne_zero b
+    field_simp [hb0, hy0]
+  refine ⟨a, d, hd0, rfl, rfl, ?_, ?_⟩
+  · change y = (y + y⁻¹) / 2 + (c / (2 * b ^ 2)) * b
+    rw [hodd]
+    ring
+  · change y⁻¹ = (y + y⁻¹) / 2 - (c / (2 * b ^ 2)) * b
+    rw [hodd]
+    ring
+
 /-- The analytic terminal real core remains pointwise fixed by complex conjugation. -/
 theorem PositiveEigenvectorTerminalWitness.eigenvectorTerminalAnalyticRealCore_le_fixed
     {n : ℕ} {u : Fin (n + 3) → ℂ}

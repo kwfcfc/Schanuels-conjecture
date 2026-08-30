@@ -15293,6 +15293,15 @@ The full anti-fixed eigenspace is consequently exact:
 This complements the earlier fixed-field theorem: the two eigensummands of the residual quadratic
 extension are now identified pointwise and with explicit projectors.
 
+The actual terminal exponential occupies explicit nondegenerate coordinates in this splitting.
+There exist `alpha,delta in A`, with `delta != 0`, such that
+
+`alpha=(y+y^(-1))/2`,  `delta=c/(2*b^2)`,
+`y=alpha+delta*b`,     `y^(-1)=alpha-delta*b`.                  `(RQ101)`
+
+Thus the analytic graph equation is encoded by a nonzero affine odd coefficient over the shadow,
+not merely by the abstract fact that `y` lies in `A(b)`.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15715,3 +15724,5 @@ The unique two-coordinate quadratic normal form `(RQ97)` and diagonal sign actio
 nonidentity residual sheet `(RQ98)` have the same audit result.
 The explicit even/odd projector formulas `(RQ99)` and exact anti-fixed eigenspace
 characterization `(RQ100)` have likewise been audited with only those three axioms.
+The nonzero affine analytic-shadow coordinates of the terminal exponential and its inverse
+`(RQ101)` have the same audit result.
