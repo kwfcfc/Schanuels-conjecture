@@ -234,7 +234,9 @@ not presented as a solution of the full task.
   sheet acts diagonally by `a+d·b↦a−d·b`.  Its even and odd projectors recover
   `a=(z+σz)/2` and `d=(z−σz)/(2b)`, and its anti-fixed eigenspace is exactly the line `A·b`.
   In particular `y=exp(b)` has nonzero affine coordinates
-  `y=α+δb`, `y⁻¹=α−δb`, with `α=(y+y⁻¹)/2` and `δ=c/(2b²)` in `A`.
+  `y=α+δb`, `y⁻¹=α−δb`, with `α=(y+y⁻¹)/2` and `δ=c/(2b²)` in `A`.  Coordinate
+  multiplication is `(a,d)(a′,d′)=(aa′+dd′b²,ad′+da′)`, and every element has exact switch trace
+  `2a` and norm `a²−d²b²` in `A`.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

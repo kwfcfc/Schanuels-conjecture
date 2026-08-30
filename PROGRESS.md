@@ -15302,6 +15302,18 @@ There exist `alpha,delta in A`, with `delta != 0`, such that
 Thus the analytic graph equation is encoded by a nonzero affine odd coefficient over the shadow,
 not merely by the abstract fact that `y` lies in `A(b)`.
 
+The coordinate splitting is an explicit quadratic algebra.  If `b2=b^2 in A`, multiplication is
+
+`(a,d)*(a',d')=(a*a'+d*d'*b2, a*d'+d*a')`.                    `(RQ102)`
+
+For an arbitrary `z=a+d*b` in the degree-two branch and the nonidentity switch,
+
+`Tr(z)=z+sigma(z)=2*a`,
+`Norm(z)=z*sigma(z)=a^2-d^2*b2`,                               `(RQ103)`
+
+with both displayed values represented by actual elements of `A`.  Hence the full residual field
+is now concrete as a quadratic algebra, including its product, conjugation, trace, and norm.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15726,3 +15738,5 @@ The explicit even/odd projector formulas `(RQ99)` and exact anti-fixed eigenspac
 characterization `(RQ100)` have likewise been audited with only those three axioms.
 The nonzero affine analytic-shadow coordinates of the terminal exponential and its inverse
 `(RQ101)` have the same audit result.
+The explicit quadratic coordinate multiplication law `(RQ102)` and arbitrary-element
+trace/norm formulas `(RQ103)` have likewise been audited with only those three axioms.

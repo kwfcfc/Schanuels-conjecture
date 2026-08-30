@@ -7084,6 +7084,79 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_antiFixed_iff
     rw [map_mul, σ.commutes, hb]
     ring
 
+/-- Multiplication in last-input coordinates is the usual quadratic-algebra multiplication with
+square coefficient `b²` in the analytic shadow. -/
+theorem initialAnalytic_quadratic_coordinate_mul
+    {n : ℕ} (u : Fin (n + 3) → ℂ) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    ∃ b2 : A,
+      (b2 : ℂ) = u (Fin.last (n + 2)) ^ 2 ∧
+      ∀ p q : A × A,
+        ((p.1 : ℂ) + (p.2 : ℂ) * u (Fin.last (n + 2))) *
+            ((q.1 : ℂ) + (q.2 : ℂ) * u (Fin.last (n + 2))) =
+          ((p.1 * q.1 + p.2 * q.2 * b2 : A) : ℂ) +
+            ((p.1 * q.2 + p.2 * q.1 : A) : ℂ) * u (Fin.last (n + 2)) := by
+  dsimp only
+  let b := u (Fin.last (n + 2))
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  have hb2A : b ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert (b ^ 2) _)
+  let b2 : A := ⟨b ^ 2, hb2A⟩
+  refine ⟨b2, rfl, ?_⟩
+  intro p q
+  change ((p.1 : ℂ) + (p.2 : ℂ) * b) * ((q.1 : ℂ) + (q.2 : ℂ) * b) =
+    ((p.1 : ℂ) * (q.1 : ℂ) + (p.2 : ℂ) * (q.2 : ℂ) * b ^ 2) +
+      ((p.1 : ℂ) * (q.2 : ℂ) + (p.2 : ℂ) * (q.1 : ℂ)) * b
+  ring
+
+/-- The switch trace and norm of every element are the standard quadratic expressions in its
+unique last-input coordinates. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_trace_norm_normal_form
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ (σ : Gal(F/A)), σ ≠ 1 →
+      ∀ (z : F) (p : A × A),
+        (z : ℂ) = (p.1 : ℂ) + (p.2 : ℂ) * u (Fin.last (n + 2)) →
+          ∃ b2 tr nr : A,
+            (b2 : ℂ) = u (Fin.last (n + 2)) ^ 2 ∧
+            tr = 2 * p.1 ∧
+            nr = p.1 ^ 2 - p.2 ^ 2 * b2 ∧
+            (tr : ℂ) = (z : ℂ) + (σ z : ℂ) ∧
+            (nr : ℂ) = (z : ℂ) * (σ z : ℂ) := by
+  dsimp only
+  intro htwo σ hσ z p hz
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let b := u (Fin.last (n + 2))
+  have hb2A : b ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert (b ^ 2) _)
+  let b2 : A := ⟨b ^ 2, hb2A⟩
+  let tr : A := 2 * p.1
+  let nr : A := p.1 ^ 2 - p.2 ^ 2 * b2
+  have hact := W.initialAnalytic_nontrivial_apply_normal_form htwo σ hσ z p hz
+  refine ⟨b2, tr, nr, rfl, rfl, rfl, ?_, ?_⟩
+  · change (2 : ℂ) * (p.1 : ℂ) = (z : ℂ) + (σ z : ℂ)
+    rw [hz, hact]
+    ring
+  · change (p.1 : ℂ) ^ 2 - (p.2 : ℂ) ^ 2 * b ^ 2 =
+      (z : ℂ) * (σ z : ℂ)
+    rw [hz, hact]
+    ring
+
 /-- In every branch, each deck transformation over the analytic shadow preserves the genuine
 terminal exponential equation. -/
 theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible
