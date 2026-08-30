@@ -15282,6 +15282,16 @@ action:
 
 Thus the wild sheet is literally the sign involution on the second summand of `L=A directSum A*b`;
 the fixed and anti-fixed coordinates are unique, not merely existential trace expressions.
+Moreover the coordinates are recovered by the involution itself:
+
+`a=(z+sigma(z))/2`,  `d=(z-sigma(z))/(2*b)`.                   `(RQ99)`
+
+The full anti-fixed eigenspace is consequently exact:
+
+`sigma(z)=-z iff exists d in A, z=d*b`.                        `(RQ100)`
+
+This complements the earlier fixed-field theorem: the two eigensummands of the residual quadratic
+extension are now identified pointwise and with explicit projectors.
 
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
@@ -15703,3 +15713,5 @@ Nonvanishing of the mixed connector `(RQ93)`, the exact reciprocal discriminant 
 analytic shadow `(RQ96)` have likewise been audited with only those three axioms.
 The unique two-coordinate quadratic normal form `(RQ97)` and diagonal sign action of every
 nonidentity residual sheet `(RQ98)` have the same audit result.
+The explicit even/odd projector formulas `(RQ99)` and exact anti-fixed eigenspace
+characterization `(RQ100)` have likewise been audited with only those three axioms.

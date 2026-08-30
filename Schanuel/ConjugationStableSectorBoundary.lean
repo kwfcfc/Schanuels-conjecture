@@ -6942,6 +6942,86 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_nontrivial_apply_norm
     ring
   exact congrArg ((↑) : F → ℂ) hσz
 
+/-- The two normal-form coefficients are recovered by the even and odd projectors of the
+nonidentity residual involution. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_normal_form_coefficients
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ (σ : Gal(F/A)), σ ≠ 1 →
+      ∀ (z : F) (p : A × A),
+        (z : ℂ) = (p.1 : ℂ) + (p.2 : ℂ) * u (Fin.last (n + 2)) →
+          (p.1 : ℂ) = ((z : ℂ) + (σ z : ℂ)) / 2 ∧
+            (p.2 : ℂ) = ((z : ℂ) - (σ z : ℂ)) /
+              (2 * u (Fin.last (n + 2))) := by
+  dsimp only
+  intro htwo σ hσ z p hz
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  have hσz := W.initialAnalytic_nontrivial_apply_normal_form htwo σ hσ z p hz
+  constructor
+  · rw [hz, hσz]
+    ring
+  · rw [hz, hσz]
+    field_simp [W.last_ne_zero]
+    ring
+
+/-- The anti-fixed eigenspace of a nonidentity analytic-shadow involution is exactly the
+one-dimensional line `A * b`. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_antiFixed_iff
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ (σ : Gal(F/A)), σ ≠ 1 → ∀ z : F,
+      σ z = -z ↔ ∃ d : A,
+        z = algebraMap A F d * selectedInputInFull u (Fin.last (n + 2)) := by
+  dsimp only
+  intro htwo σ hσ z
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let b := u (Fin.last (n + 2))
+  let bF := selectedInputInFull u (Fin.last (n + 2))
+  constructor
+  · intro hanti
+    obtain ⟨p, hp, -⟩ := W.initialAnalytic_quadratic_normal_form_of_finrank_two htwo z
+    have hact := W.initialAnalytic_nontrivial_apply_normal_form htwo σ hσ z p hp
+    have hantiC := congrArg ((↑) : F → ℂ) hanti
+    have heq : (p.1 : ℂ) - (p.2 : ℂ) * b =
+        -((p.1 : ℂ) + (p.2 : ℂ) * b) := by
+      rw [← hact, ← hp]
+      exact hantiC
+    have haC : (p.1 : ℂ) = 0 := by
+      linear_combination heq / 2
+    have ha : p.1 = 0 := by
+      apply Subtype.ext
+      exact haC
+    refine ⟨p.2, ?_⟩
+    apply Subtype.ext
+    rw [ha] at hp
+    simpa using hp
+  · rintro ⟨d, rfl⟩
+    have hb := W.galois_over_initialAnalytic_nontrivial_switch σ hσ |>.1
+    rw [map_mul, σ.commutes, hb]
+    ring
+
 /-- In every branch, each deck transformation over the analytic shadow preserves the genuine
 terminal exponential equation. -/
 theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible

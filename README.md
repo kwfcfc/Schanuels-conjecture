@@ -231,7 +231,8 @@ not presented as a solution of the full task.
   discriminant is exactly `(y+y⁻¹)²−4=(y−y⁻¹)²≠0`, and the actual coefficients in `A` satisfy
   `c²=b²((y+y⁻¹)²−4)`, identifying the same nondegenerate quadratic square class.  In degree two,
   every element of the full field has a unique form `a+d·b` with `a,d∈A`, and the nonidentity
-  sheet acts diagonally by `a+d·b↦a−d·b`.
+  sheet acts diagonally by `a+d·b↦a−d·b`.  Its even and odd projectors recover
+  `a=(z+σz)/2` and `d=(z−σz)/(2b)`, and its anti-fixed eigenspace is exactly the line `A·b`.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over
