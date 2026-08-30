@@ -15270,6 +15270,19 @@ three actual coefficients `b2=b^2`, `t=y+y^(-1)`, and `c` belong to `A`, with `c
 Thus the additive and reciprocal quadratic presentations determine the same nondegenerate
 quadratic square class over the analytic shadow.
 
+The residual quadratic field now has an exact coordinate normal form.  In the degree-two branch,
+for every `z in L` there is a unique pair `(a,d) in A x A` such that
+
+`z=a+d*b`.                                                      `(RQ97)`
+
+For every nonidentity analytic-shadow deck transformation, these coordinates diagonalize its
+action:
+
+`sigma(a+d*b)=a-d*b`.                                          `(RQ98)`
+
+Thus the wild sheet is literally the sign involution on the second summand of `L=A directSum A*b`;
+the fixed and anti-fixed coordinates are unique, not merely existential trace expressions.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15688,3 +15701,5 @@ degree-two/nowhere-continuous criteria `(RQ91)--(RQ92)`, has the same audit resu
 Nonvanishing of the mixed connector `(RQ93)`, the exact reciprocal discriminant identity
 `(RQ94)`, its witness-level nonvanishing `(RQ95)`, and the coefficient relation internal to the
 analytic shadow `(RQ96)` have likewise been audited with only those three axioms.
+The unique two-coordinate quadratic normal form `(RQ97)` and diagonal sign action of every
+nonidentity residual sheet `(RQ98)` have the same audit result.

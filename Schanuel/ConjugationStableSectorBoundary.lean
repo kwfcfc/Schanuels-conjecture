@@ -6820,6 +6820,128 @@ theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_nontrivia
     exact hy.trans (sub_eq_zero.mp ((mul_eq_zero.mp hc0).resolve_left hb0))
   · exact hy
 
+/-- In the degree-two branch, every element of the full graph field has a unique coordinate
+expression `a + d * b` with `a,d` in the analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_quadratic_normal_form_of_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ z : F,
+      ∃! p : A × A,
+        (z : ℂ) = (p.1 : ℂ) + (p.2 : ℂ) * u (Fin.last (n + 2)) := by
+  dsimp only
+  intro htwo z
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  let b := u (Fin.last (n + 2))
+  let bF := selectedInputInFull u (Fin.last (n + 2))
+  have hbnotA : b ∉ A :=
+    (W.lastInput_not_mem_initialAnalytic_iff_finrank_two).mpr htwo
+  have hbnotrange : bF ∉ Set.range (algebraMap A F) := by
+    rintro ⟨a, ha⟩
+    apply hbnotA
+    have hab := congrArg ((↑) : F → ℂ) ha
+    change (a : ℂ) = b at hab
+    rw [← hab]
+    exact a.property
+  let v : Fin 2 → F := ![bF, 1]
+  have hv : LinearIndependent A v := by
+    rw [linearIndependent_fin2]
+    refine ⟨by simp [v], ?_⟩
+    intro a ha
+    apply hbnotrange
+    refine ⟨a, ?_⟩
+    simpa [v, Algebra.smul_def] using ha
+  let B : Module.Basis (Fin 2) A F :=
+    basisOfLinearIndependentOfCardEqFinrank hv (by simpa using htwo.symm)
+  have hB : (B : Fin 2 → F) = v :=
+    coe_basisOfLinearIndependentOfCardEqFinrank hv (by simpa using htwo.symm)
+  let d : A := B.repr z 0
+  let a : A := B.repr z 1
+  have hz : (z : ℂ) = (a : ℂ) + (d : ℂ) * b := by
+    have hsum := B.sum_repr z
+    rw [Fin.sum_univ_two] at hsum
+    have hB0 : B 0 = bF := by rw [hB]; rfl
+    have hB1 : B 1 = 1 := by rw [hB]; rfl
+    rw [hB0, hB1] at hsum
+    simp only [Algebra.smul_def, mul_one] at hsum
+    have hzF : z = algebraMap A F a + algebraMap A F d * bF := by
+      exact hsum.symm.trans (add_comm _ _)
+    exact congrArg ((↑) : F → ℂ) hzF
+  refine ⟨(a, d), hz, ?_⟩
+  · rintro ⟨a', d'⟩ hz'
+    have hcoeff : (a : ℂ) + (d : ℂ) * b =
+        (a' : ℂ) + (d' : ℂ) * b := hz.symm.trans hz'
+    have hdd : d = d' := by
+      by_contra hne
+      have hdenA : d - d' ≠ 0 := sub_ne_zero.mpr hne
+      have hdenC : ((d - d' : A) : ℂ) ≠ 0 := by
+        intro hzero
+        apply hdenA
+        apply Subtype.ext
+        exact hzero
+      have hdenC' : (d : ℂ) - (d' : ℂ) ≠ 0 := by
+        simpa using hdenC
+      have hrel : ((d : ℂ) - (d' : ℂ)) * b =
+          (a' : ℂ) - (a : ℂ) := by
+        linear_combination hcoeff
+      have hbexpr : b = (((a' - a) / (d - d') : A) : ℂ) := by
+        change b = ((a' : ℂ) - (a : ℂ)) / ((d : ℂ) - (d' : ℂ))
+        apply (eq_div_iff hdenC').2
+        simpa [mul_comm] using hrel
+      apply hbnotA
+      rw [hbexpr]
+      exact ((a' - a) / (d - d')).property
+    have haa : a = a' := by
+      apply Subtype.ext
+      rw [hdd] at hcoeff
+      simpa using hcoeff
+    exact Prod.ext haa.symm hdd.symm
+
+/-- In the same coordinates, every nonidentity analytic-shadow deck transformation fixes the
+base coordinate and negates the last-input coordinate. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_nontrivial_apply_normal_form
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ (σ : Gal(F/A)), σ ≠ 1 →
+      ∀ (z : F) (p : A × A),
+        (z : ℂ) = (p.1 : ℂ) + (p.2 : ℂ) * u (Fin.last (n + 2)) →
+          (σ z : ℂ) = (p.1 : ℂ) - (p.2 : ℂ) * u (Fin.last (n + 2)) := by
+  dsimp only
+  intro _ σ hσ z p hz
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let bF := selectedInputInFull u (Fin.last (n + 2))
+  have hb := W.galois_over_initialAnalytic_nontrivial_switch σ hσ |>.1
+  have hzF : z = algebraMap A F p.1 + algebraMap A F p.2 * bF := by
+    apply Subtype.ext
+    exact hz
+  have hσz : σ z = algebraMap A F p.1 - algebraMap A F p.2 * bF := by
+    rw [hzF, map_add, map_mul, σ.commutes, σ.commutes, hb]
+    ring
+  exact congrArg ((↑) : F → ℂ) hσz
+
 /-- In every branch, each deck transformation over the analytic shadow preserves the genuine
 terminal exponential equation. -/
 theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible

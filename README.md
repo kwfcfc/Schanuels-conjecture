@@ -229,7 +229,9 @@ not presented as a solution of the full task.
   collapse, and automatic continuity at zero; its exclusion is equivalent to degree two and a
   nowhere-continuous residual sheet.  The mixed connector `c=b(y−y⁻¹)` is nonzero, the reciprocal
   discriminant is exactly `(y+y⁻¹)²−4=(y−y⁻¹)²≠0`, and the actual coefficients in `A` satisfy
-  `c²=b²((y+y⁻¹)²−4)`, identifying the same nondegenerate quadratic square class.
+  `c²=b²((y+y⁻¹)²−4)`, identifying the same nondegenerate quadratic square class.  In degree two,
+  every element of the full field has a unique form `a+d·b` with `a,d∈A`, and the nonidentity
+  sheet acts diagonally by `a+d·b↦a−d·b`.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over
