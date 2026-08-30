@@ -227,7 +227,9 @@ not presented as a solution of the full task.
   without any degree hypothesis.  Indeed the two intermediate fields are literally equal,
   `A(b)=A(y)`.  Thus membership of the exponential in `A` is equivalent to degree one, field
   collapse, and automatic continuity at zero; its exclusion is equivalent to degree two and a
-  nowhere-continuous residual sheet.
+  nowhere-continuous residual sheet.  The mixed connector `c=b(y−y⁻¹)` is nonzero, the reciprocal
+  discriminant is exactly `(y+y⁻¹)²−4=(y−y⁻¹)²≠0`, and the actual coefficients in `A` satisfy
+  `c²=b²((y+y⁻¹)²−4)`, identifying the same nondegenerate quadratic square class.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

@@ -2968,6 +2968,22 @@ def eigenvectorTerminalCrossInvariant {n : ℕ} (u : Fin (n + 3) → ℂ) : ℂ 
   let b := u (Fin.last (n + 2))
   b * (Complex.exp b - (Complex.exp b)⁻¹)
 
+/-- The mixed terminal invariant never vanishes: neither its input factor nor its odd
+exponential factor can vanish. -/
+theorem PositiveEigenvectorTerminalWitness.terminalCrossInvariant_ne_zero
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    eigenvectorTerminalCrossInvariant u ≠ 0 := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  change b * (y - y⁻¹) ≠ 0
+  apply mul_ne_zero W.last_ne_zero
+  apply sub_ne_zero.mpr
+  intro heq
+  apply W.terminalExp_ne_inv
+  apply Subtype.ext
+  exact heq
+
 /-- The mixed terminal invariant as a literal element of the full graph field. -/
 def eigenvectorTerminalCrossInFull {n : ℕ} (u : Fin (n + 3) → ℂ) : generatedField u :=
   selectedInputInFull u (Fin.last (n + 2)) *
@@ -3099,6 +3115,35 @@ def eigenvectorTerminalRealCore {n : ℕ} (u : Fin (n + 3) → ℂ) :
       Complex.exp (u (Fin.last (n + 2))) +
         (Complex.exp (u (Fin.last (n + 2))))⁻¹} : Set ℂ)
 
+/-- The discriminant of the reciprocal quadratic presentation is the square of the odd
+exponential part. -/
+theorem terminalExpTrace_discriminant_eq_odd_sq {b : ℂ} :
+    let y := Complex.exp b
+    (y + y⁻¹) ^ 2 - 4 = (y - y⁻¹) ^ 2 := by
+  dsimp only
+  have hy0 : Complex.exp b ≠ 0 := Complex.exp_ne_zero b
+  field_simp [hy0]
+  ring
+
+/-- For a positive terminal witness, the reciprocal quadratic presentation has nonzero
+discriminant. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExpTrace_discriminant_ne_zero
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let b := u (Fin.last (n + 2))
+    let y := Complex.exp b
+    (y + y⁻¹) ^ 2 - 4 ≠ 0 := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  change (y + y⁻¹) ^ 2 - 4 ≠ 0
+  rw [terminalExpTrace_discriminant_eq_odd_sq]
+  apply pow_ne_zero 2
+  apply sub_ne_zero.mpr
+  intro heq
+  apply W.terminalExp_ne_inv
+  apply Subtype.ext
+  exact heq
+
 /-- The square of the mixed invariant already belongs to the original two-generator real core. -/
 theorem terminalCrossInvariant_sq_mem_realCore
     {n : ℕ} (u : Fin (n + 3) → ℂ) :
@@ -3181,6 +3226,48 @@ theorem terminalCrossInvariant_mem_analyticRealCore
     ({eigenvectorTerminalCrossInvariant u} : Set ℂ) ≤
       eigenvectorTerminalAnalyticRealCore u from le_sup_right)
   exact IntermediateField.subset_adjoin ℚ _ (Set.mem_singleton _)
+
+/-- The coefficients of the two terminal quadratic presentations satisfy the exact square-class
+relation `c² = b² * (t² - 4)` inside the analytic shadow, with `c` nonzero. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_quadratic_coefficients_relation
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    ∃ b2 t c : A,
+      (b2 : ℂ) = u (Fin.last (n + 2)) ^ 2 ∧
+      (t : ℂ) = Complex.exp (u (Fin.last (n + 2))) +
+        (Complex.exp (u (Fin.last (n + 2))))⁻¹ ∧
+      (c : ℂ) = eigenvectorTerminalCrossInvariant u ∧
+      c ≠ 0 ∧ c ^ 2 = b2 * (t ^ 2 - 4) := by
+  dsimp only
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  have hb2A : b ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert (b ^ 2) _)
+  have htA : y + y⁻¹ ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _
+      (Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton _)))
+  have hcA : eigenvectorTerminalCrossInvariant u ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    exact terminalCrossInvariant_mem_analyticRealCore u
+  let b2 : A := ⟨b ^ 2, hb2A⟩
+  let t : A := ⟨y + y⁻¹, htA⟩
+  let c : A := ⟨eigenvectorTerminalCrossInvariant u, hcA⟩
+  refine ⟨b2, t, c, rfl, rfl, rfl, ?_, ?_⟩
+  · intro hc
+    apply W.terminalCrossInvariant_ne_zero
+    exact congrArg ((↑) : A → ℂ) hc
+  · apply Subtype.ext
+    change eigenvectorTerminalCrossInvariant u ^ 2 =
+      b ^ 2 * ((y + y⁻¹) ^ 2 - 4)
+    change (b * (y - y⁻¹)) ^ 2 = b ^ 2 * ((y + y⁻¹) ^ 2 - 4)
+    rw [terminalExpTrace_discriminant_eq_odd_sq]
+    ring
 
 /-- The analytic terminal real core remains pointwise fixed by complex conjugation. -/
 theorem PositiveEigenvectorTerminalWitness.eigenvectorTerminalAnalyticRealCore_le_fixed

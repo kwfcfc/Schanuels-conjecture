@@ -15254,6 +15254,22 @@ The exponential generator therefore supplies a fully symmetric branch detector. 
 transformation `(RQ90)`.  Complementarily, `y notin A` is equivalent to relative degree two
 `(RQ91)` and to the existence of a nowhere-continuous deck transformation `(RQ92)`.
 
+The connector between the two quadratic presentations is itself nondegenerate:
+
+`c=b*(y-y^(-1)) != 0`.                                         `(RQ93)`
+
+The reciprocal-trace discriminant has the exact ambient identity
+
+`(y+y^(-1))^2-4=(y-y^(-1))^2`,                                `(RQ94)`
+
+and is therefore nonzero for every positive terminal witness `(RQ95)`.  More intrinsically, the
+three actual coefficients `b2=b^2`, `t=y+y^(-1)`, and `c` belong to `A`, with `c != 0`, and obey
+
+`c^2=b2*(t^2-4)` in A.                                        `(RQ96)`
+
+Thus the additive and reciprocal quadratic presentations determine the same nondegenerate
+quadratic square class over the analytic shadow.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15669,3 +15685,6 @@ axioms.
 Literal equality of the last-input and last-exponential simple extensions `(RQ87)`, together
 with the exponential membership/collapse/continuity criteria `(RQ88)--(RQ90)` and complementary
 degree-two/nowhere-continuous criteria `(RQ91)--(RQ92)`, has the same audit result.
+Nonvanishing of the mixed connector `(RQ93)`, the exact reciprocal discriminant identity
+`(RQ94)`, its witness-level nonvanishing `(RQ95)`, and the coefficient relation internal to the
+analytic shadow `(RQ96)` have likewise been audited with only those three axioms.
