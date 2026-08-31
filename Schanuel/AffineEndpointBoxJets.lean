@@ -29,11 +29,15 @@ def boxBasisBasis :
   Pi.basis (fun _ : α => Pi.basisFun K β)
 
 /-- Standard coefficient vector supported on the monomial indexed by `(a,b)`. -/
-def boxBasis (a : α) (b : β) : α → β → K :=
-  boxBasisBasis (K := K) (α := α) (β := β) ⟨a, b⟩
+def boxBasis (a : α) (b : β) : α → β → K := by
+  classical
+  exact Pi.single a (Pi.single b 1)
 
-@[simp] theorem boxBasis_eq_single (a : α) (b : β) :
-    boxBasis (K := K) a b = Pi.single a (Pi.single b 1) := by
+/-- The explicit standard vector is the corresponding vector of the canonical
+rectangular basis. -/
+theorem boxBasis_eq_basis (a : α) (b : β) :
+    boxBasis (K := K) a b =
+      boxBasisBasis (K := K) (α := α) (β := β) ⟨a, b⟩ := by
   classical
   simp [boxBasis, boxBasisBasis]
 
@@ -46,7 +50,8 @@ def boxJetMap (jetCoeff : α → β → ι → K) :
 @[simp] theorem boxJetMap_boxBasis (jetCoeff : α → β → ι → K)
     (a : α) (b : β) :
     boxJetMap jetCoeff (boxBasis (K := K) a b) = jetCoeff a b := by
-  simp [boxJetMap, boxBasis]
+  rw [boxBasis_eq_basis]
+  simp [boxJetMap]
 
 @[simp] theorem boxEndpoint_boxBasis_same (a : α) (b : β) :
     boxEndpoint (K := K) (β := β) a (boxBasis (K := K) a b) = 1 := by
@@ -69,7 +74,7 @@ theorem linearMap_eq_of_boxBasis_eq
     f = g := by
   apply (boxBasisBasis (K := K) (α := α) (β := β)).ext
   rintro ⟨a, b⟩
-  exact h a b
+  simpa only [boxBasis_eq_basis] using h a b
 
 /-- The concrete finite-box endpoint problem is the abstract row-span
 obstruction specialized to the box jet map. -/
