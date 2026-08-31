@@ -15334,6 +15334,13 @@ outside the analytic shadow `(RQ106)` and is itself a primitive element:
 
 Thus the actual exponential supplies an infinite, noncollapsing norm-one orbit, every positive
 point of which generates the entire residual sheet.
+Each point has its exact reciprocal quadratic minimal polynomial.  For every `m>0`, with the
+literal trace coefficient `t_m=y^m+y^(-m) in A`,
+
+`minpoly_A(y^m)=X^2-t_m*X+1`.                                  `(RQ108)`
+
+So the infinite Pell orbit is explicit not only at the level of fields but at the polynomial
+level, with norm one and nonzero discriminant in every positive degree.
 
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
@@ -15766,3 +15773,5 @@ same audit result.
 Positive-power nondegeneracy `(RQ105)`, exclusion of every positive power from the degree-two
 analytic base `(RQ106)`, and primitive generation by each such power `(RQ107)` have likewise been
 audited with only those three axioms.
+The exact reciprocal quadratic minimal polynomial of every positive terminal exponential power
+`(RQ108)` has the same audit result.

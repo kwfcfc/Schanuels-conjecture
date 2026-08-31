@@ -7926,6 +7926,113 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_minpoly_lastExp_of_fi
   exact (Polynomial.eq_of_monic_of_dvd_of_natDegree_le
     (minpoly.monic hyint) hpmonic hdvd (hpdegree.trans hdegree.symm).le).symm
 
+/-- Every positive power in the terminal Pell orbit has the exact reciprocal quadratic minimal
+polynomial over the analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_minpoly_terminalExp_pow
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ m : ℕ, 0 < m →
+      ∃ t : A,
+        (t : ℂ) = Complex.exp (u (Fin.last (n + 2))) ^ m +
+            (Complex.exp (u (Fin.last (n + 2))) ^ m)⁻¹ ∧
+          minpoly A (selectedExpInFull u (Fin.last (n + 2)) ^ m) =
+            Polynomial.X ^ 2 - Polynomial.C t * Polynomial.X + 1 := by
+  dsimp only
+  intro htwo m hm
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  letI : FiniteDimensional A F :=
+    W.finiteDimensional_full_over_initialAnalyticRealCore
+  let y := Complex.exp (u (Fin.last (n + 2)))
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  obtain ⟨σ, ⟨hσ, -, hy⟩, -⟩ :=
+    W.existsUnique_initialAnalytic_switch_of_finrank_two htwo
+  obtain ⟨pcoord, hpcoord, -⟩ :=
+    W.initialAnalytic_quadratic_normal_form_of_finrank_two htwo (yF ^ m)
+  obtain ⟨-, t, -, -, -, -, ht, -⟩ :=
+    W.initialAnalytic_trace_norm_normal_form htwo σ hσ (yF ^ m) pcoord hpcoord
+  have hσpow : σ (yF ^ m) = (yF ^ m)⁻¹ := by
+    rw [map_pow, hy, inv_pow]
+  have htval : (t : ℂ) = y ^ m + (y ^ m)⁻¹ := by
+    calc
+      (t : ℂ) = ((yF ^ m : F) : ℂ) + (σ (yF ^ m) : ℂ) := ht
+      _ = y ^ m + (y ^ m)⁻¹ := by rw [hσpow]; rfl
+  refine ⟨t, htval, ?_⟩
+  let x := y ^ m
+  let xF := yF ^ m
+  let p : Polynomial A := Polynomial.X ^ 2 - Polynomial.C t * Polynomial.X + 1
+  have hxint : IsIntegral A xF := Algebra.IsIntegral.isIntegral xF
+  have hpform : p = Polynomial.C 1 * Polynomial.X ^ 2 +
+      Polynomial.C (-t) * Polynomial.X + Polynomial.C 1 := by
+    simp [p]
+    ring
+  have hpform' : p = Polynomial.X ^ 2 +
+      (-(Polynomial.C t * Polynomial.X) + 1) := by
+    simp [p]
+    ring
+  have hlinear : (-(Polynomial.C t * Polynomial.X)).degree ≤ 1 := by
+    rw [Polynomial.degree_neg]
+    calc
+      (Polynomial.C t * Polynomial.X).degree ≤
+          (Polynomial.C t).degree + Polynomial.X.degree :=
+        Polynomial.degree_mul_le _ _
+      _ ≤ 0 + 1 := add_le_add Polynomial.degree_C_le (by simp)
+      _ = 1 := by norm_num
+  have hpmonic : p.Monic := by
+    rw [hpform']
+    apply Polynomial.monic_X_pow_add
+    calc
+      (-(Polynomial.C t * Polynomial.X) + 1).degree ≤
+          max (-(Polynomial.C t * Polynomial.X)).degree (1 : Polynomial A).degree :=
+        Polynomial.degree_add_le _ _
+      _ ≤ 1 := max_le hlinear (by simp)
+      _ < 2 := by norm_num
+  have hpeval : Polynomial.aeval xF p = 0 := by
+    rw [Polynomial.aeval_def]
+    dsimp only [p]
+    rw [Polynomial.eval₂_add, Polynomial.eval₂_sub,
+      Polynomial.eval₂_mul, Polynomial.eval₂_X_pow, Polynomial.eval₂_C,
+      Polynomial.eval₂_X, Polynomial.eval₂_one]
+    apply Subtype.ext
+    change x ^ 2 - (t : ℂ) * x + 1 = 0
+    rw [htval]
+    calc
+      x ^ 2 - (x + x⁻¹) * x + 1 = 1 - x⁻¹ * x := by ring
+      _ = 0 := by
+        rw [inv_mul_cancel₀ (pow_ne_zero m (Complex.exp_ne_zero _))]
+        ring
+  have hdvd : minpoly A xF ∣ p := minpoly.dvd A xF hpeval
+  have hxnotA : x ∉ A :=
+    W.terminalExp_pow_not_mem_initialAnalytic_of_finrank_two htwo m hm
+  have hxnotrange : xF ∉ Set.range (algebraMap A F) := by
+    rintro ⟨a, ha⟩
+    apply hxnotA
+    have hax := congrArg ((↑) : F → ℂ) ha
+    change (a : ℂ) = x at hax
+    rw [← hax]
+    exact a.property
+  have hlower : 2 ≤ (minpoly A xF).natDegree :=
+    (minpoly.two_le_natDegree_iff hxint).mpr hxnotrange
+  have hupper : (minpoly A xF).natDegree ≤ 2 := by
+    exact (minpoly.natDegree_le xF).trans_eq htwo
+  have hdegree : (minpoly A xF).natDegree = 2 := Nat.le_antisymm hupper hlower
+  have hpdegree : p.natDegree = 2 := by
+    rw [hpform]
+    exact Polynomial.natDegree_quadratic one_ne_zero
+  change minpoly A xF = p
+  exact (Polynomial.eq_of_monic_of_dvd_of_natDegree_le
+    (minpoly.monic hxint) hpmonic hdvd (hpdegree.trans hdegree.symm).le).symm
+
 /-- Every nonidentity analytic-shadow deck transformation has an explicit discontinuity
 sequence at zero, without any quartic assumption. -/
 theorem PositiveEigenvectorTerminalWitness.exists_initialAnalytic_discontinuity_sequence
