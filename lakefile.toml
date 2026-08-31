@@ -45,5 +45,7 @@ roots = ["Schanuel", "Schanuel.Structural", "Schanuel.LindemannAttempt",
   "Schanuel.ConjugationStableMinimalFailure",
   "Schanuel.ConjugationStableTerminal",
   "Schanuel.ConjugationStableSectorBoundary",
+  "Schanuel.DifferentialTransversality",
+  "Schanuel.OrderSwitchObstruction",
   "Schanuel.MinimalCounterexampleRationalBasis",
   "Schanuel.MinimalCounterexampleUniformBoundary"]

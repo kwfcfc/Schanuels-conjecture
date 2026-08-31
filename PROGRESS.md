@@ -15602,6 +15602,69 @@ strictly below the cross-field degree statement `(RQ14)`.  This route can reopen
 unconditional mixed-class lifting theorem plus a mechanism upgrading it to algebraic
 disjointness.
 
+### Normalized differential specialization and the exact endpoint defect
+
+There is a useful positive differential statement for a hypothetical least-arity failure.  Let
+`K=Q(z,exp z)` and suppose the conjecture is already known below arity `n`.  If a nonzero
+`Q`-derivation `D:K->K` satisfies
+
+`D(exp(z_i))=exp(z_i)D(z_i)` for every `i`,                         `(DT1)`
+
+then Ax's differential theorem, after a rational basis change separating the input directions
+constant under `D`, gives `trdeg_Q K>=n+1`.  The constant directions contribute by the
+lower-arity hypothesis and the nonconstant directions contribute their number plus the rank-one
+derivative term.  Thus a least defect-one failure admits no nonzero derivation satisfying
+`(DT1)`.  In its Kähler cotangent space the forms
+
+`theta_i=exp(z_i)^(-1)d(exp(z_i))-d(z_i)`                          `(DT2)`
+
+therefore span.  Applying the same argument to every deletion, followed by algebraic base change,
+shows that every deletion of one `theta_i` is a basis; the unique relation among all the forms has
+no zero coefficient.  This makes a least failure maximally transverse to the exponential
+foliation rather than tangent to it.
+
+`Schanuel/DifferentialTransversality.lean` formalizes the unconditional algebraic core of this
+argument: for arbitrary nonzero `y_i`, the forms `y_i^(-1)dy_i-dz_i` span `Omega_(K/Q)` if and
+only if every compatible derivation `K->K` is zero, and it specializes the equivalence to the
+actual `generatedField z`.  The induction-plus-Ax step is deliberately not imported as an axiom.
+
+This strong transversality still does not control specialization.  Put `k=Q(z)` and
+
+`B_z=k[t,Y_1^(+-1),...,Y_n^(+-1)]`, `D(t)=1`, `D(Y_i)=z_iY_i`.     `(DT3)`
+
+The ring is `D`-simple, its fraction-field constants are exactly `k`, and the analytic map
+`t|->t`, `Y_i|->exp(z_i t)` is injective.  Yet evaluation at `t=1` has a prime kernel `p_z` with
+
+`ht(p_z)=n+1-trdeg_k k(exp z)`.                                  `(DT4)`
+
+Writing `s=trdeg_Q k`, the desired bound for this tuple is exactly
+
+`ht(p_z)<=s+1`.                                                   `(DT5)`
+
+Differential simplicity proves only that `p_z` contains no nonzero differential ideal.  Even the
+intersection of the kernels of every evaluated derivative is zero.  Multiplying `D` by `t-1`
+makes it descend to the endpoint fiber but makes the induced derivation identically zero.  Thus
+the generic Ax equality and maximal first-order transversality leave the ordinary endpoint-height
+bound `(DT5)` completely exposed; asserting that bound would be another form of the missing
+specialization theorem.
+
+### Order obstruction to the residual switch
+
+The terminal Pell data do admit one additional conditional arithmetic test.  If an automorphism
+of an ordered field sends a nonzero `r` to `-r`, then neither `r` nor `-r` is a sum of squares.
+Indeed a sum-of-squares representation and its image would make both signs nonnegative, forcing
+`r=0`.  In particular such a switch cannot occur in an ordered real-closed field.
+`Schanuel/OrderSwitchObstruction.lean` formalizes this statement.  Applied to the terminal branch,
+the normalized real direction would be `b` in the fixed case and `b/(2*pi*i)` in the anti-fixed
+case, provided the switch is shown to restrict to the real fixed subfield.  The current hypotheses
+do not show that either sign of this direction is a sum of squares, so this is a concrete new
+arithmetic target rather than a closure of the proof.
+
+The limitation is sharp.  In `Q(sqrt 2)`, the nonidentity automorphism sends `sqrt 2` to its
+negative and the totally positive norm-one unit `3+2*sqrt 2` to its inverse.  Hence integrality,
+total positivity, the unit condition, and the Pell equation do not imply the required
+sum-of-squares property or preservation of the inherited order.
+
 ## Active next steps
 
 1. Continue searching for a higher-dimensional mechanism that genuinely overcomes either the
@@ -15627,7 +15690,7 @@ The project is pinned to Lean 4.29.1 and Mathlib 4.29.1. The complete command is
 nix develop -c lake build
 ```
 
-The registered root list contains forty-seven modules. The full build succeeds with 2927 jobs.
+The registered root list contains fifty-one modules. The full build succeeds with 2956 jobs.
 Current output contains only harmless linter advice (principally unused generic Galois section
 hypotheses and minor simplification suggestions); there are no errors or proof placeholders.
 The new restriction, rational-hyperplane, algebraicity, least-failure, defect-one equivalence, and
@@ -15805,3 +15868,7 @@ in the original square/trace real core `(RQ113)` have the same audit result.
 Every positive terminal exponential power has nonzero odd coordinate in the analytic-shadow
 quadratic normal form and satisfies the resulting internal Pell equation `(RQ114)`; this has
 likewise been audited with only those three axioms.
+The Kähler span/compatible-derivation equivalence and its specialization to the actual generated
+exponential graph field `(DT1)--(DT2)`, together with the ordered-field two-sided
+sum-of-squares obstruction and real-closed corollary, have likewise been audited with only those
+three axioms.

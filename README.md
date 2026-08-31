@@ -284,6 +284,14 @@ not presented as a solution of the full task.
 - [`Schanuel/RelativeDescent.lean`](./Schanuel/RelativeDescent.lean) splits the total
   transcendence degree into the coordinate and relative exponential contributions and records
   precise obstructions to specialization preserving the exponential graph.
+- [`Schanuel/DifferentialTransversality.lean`](./Schanuel/DifferentialTransversality.lean) defines
+  the logarithmic graph defects `y_i⁻¹dy_i−dz_i` and proves that they span the full Kähler
+  cotangent space exactly when every rational derivation satisfying
+  `D(y_i)=y_iD(z_i)` is zero.  This is specialized to the actual field `generatedField z`.
+- [`Schanuel/OrderSwitchObstruction.lean`](./Schanuel/OrderSwitchObstruction.lean) proves that a
+  nonzero element switched with its negative by an ordered-field automorphism lies in neither
+  sign of the sum-of-squares cone; in a real-closed field such a switch is impossible.  The
+  result is conditional and does not assert that a terminal direction is a sum of squares.
 - [`Schanuel/ConfluentVandermonde.lean`](./Schanuel/ConfluentVandermonde.lean) proves the sharp
   repeated-node polynomial zero estimate used in the audited auxiliary-function counts.
 - [`Schanuel/MixedObstruction.lean`](./Schanuel/MixedObstruction.lean) proves that the bound for
