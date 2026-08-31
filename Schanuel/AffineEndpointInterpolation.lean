@@ -138,6 +138,68 @@ theorem boxEndpoint_ne_zero [Nonempty β] (a₀ : α) :
 
 end BoxEndpoint
 
+
+section BoxJets
+
+variable {K α β ι : Type*} [Field K] [Fintype α] [Fintype β]
+
+/-- The finite jet map attached to a rectangular coefficient box.  The value
+`jetCoeff a b k` is the `k`-th jet of the basis monomial indexed by
+`(a,b)`; the jet of a general coefficient family is obtained by linear
+superposition. -/
+def boxJetMap (jetCoeff : α → β → ι → K) :
+    (α → β → K) →ₗ[K] (ι → K) where
+  toFun c k := ∑ a, ∑ b, c a b * jetCoeff a b k
+  map_add' c d := by
+    funext k
+    simp [add_mul, Finset.sum_add_distrib]
+  map_smul' r c := by
+    funext k
+    simp [Finset.mul_sum, mul_assoc]
+
+@[simp] theorem boxJetMap_apply (jetCoeff : α → β → ι → K)
+    (c : α → β → K) (k : ι) :
+    boxJetMap jetCoeff c k = ∑ a, ∑ b, c a b * jetCoeff a b k :=
+  rfl
+
+/-- The standard coefficient vector supported on one box monomial. -/
+def boxBasis (a : α) (b : β) : α → β → K :=
+  Pi.single a (Pi.single b 1)
+
+@[simp] theorem boxJetMap_boxBasis (jetCoeff : α → β → ι → K)
+    (a : α) (b : β) (k : ι) :
+    boxJetMap jetCoeff (boxBasis (K := K) a b) k = jetCoeff a b k := by
+  classical
+  simp [boxJetMap, boxBasis]
+
+@[simp] theorem boxEndpoint_boxBasis (a₀ a : α) (b : β) :
+    boxEndpoint (K := K) (β := β) a₀ (boxBasis (K := K) a b) =
+      if a₀ = a then 1 else 0 := by
+  classical
+  by_cases h : a₀ = a
+  · subst a
+    simp [boxEndpoint, boxBasis]
+  · simp [boxEndpoint, boxBasis, h]
+
+/-- Every finite rectangular coefficient family is the sum of its standard
+basis monomials. -/
+theorem boxCoefficients_eq_sum_basis (c : α → β → K) :
+    c = ∑ a, ∑ b, c a b • boxBasis (K := K) a b := by
+  classical
+  funext a b
+  simp [boxBasis]
+
+/-- The concrete box endpoint-escape problem is exactly the abstract row-span
+obstruction for the finite jet map. -/
+theorem boxEndpointEscape_iff_not_mem_range_dualMap
+    (jetCoeff : α → β → ι → K) (a₀ : α) :
+    EndpointEscape (boxJetMap jetCoeff) (boxEndpoint (K := K) (β := β) a₀) ↔
+      boxEndpoint (K := K) (β := β) a₀ ∉
+        LinearMap.range (boxJetMap jetCoeff).dualMap :=
+  endpointEscape_iff_not_mem_range_dualMap _ _
+
+end BoxJets
+
 section HomogeneousCounterexample
 
 variable (K : Type*) [Field K]
