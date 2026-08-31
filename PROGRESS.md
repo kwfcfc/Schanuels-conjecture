@@ -15341,6 +15341,18 @@ literal trace coefficient `t_m=y^m+y^(-m) in A`,
 
 So the infinite Pell orbit is explicit not only at the level of fields but at the polynomial
 level, with norm one and nonzero discriminant in every positive degree.
+The orbit is genuinely infinite in two increasingly strong senses.  No positive power is one
+`(RQ109)`, so the map
+
+`m |-> y^m` on `N` is injective.                                `(RQ110)`
+
+Even passage to the analytic-shadow trace loses no positive index:
+
+`y^m+y^(-m)=y^k+y^(-k)` and `m>0` imply `m=k`.                 `(RQ111)`
+
+The last statement follows from the exact factorization
+`(y^m-y^k)*(y^(m+k)-1)=0` and the preceding torsion exclusion.  Hence `A` contains a pairwise
+distinct infinite sequence of reciprocal traces whose corresponding points all generate `L`.
 
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
@@ -15775,3 +15787,6 @@ analytic base `(RQ106)`, and primitive generation by each such power `(RQ107)` h
 audited with only those three axioms.
 The exact reciprocal quadratic minimal polynomial of every positive terminal exponential power
 `(RQ108)` has the same audit result.
+Infinite multiplicative order `(RQ109)`, injectivity of the nonnegative power orbit `(RQ110)`,
+and injectivity of its positive reciprocal-trace sequence `(RQ111)` have likewise been audited
+with only those three axioms.

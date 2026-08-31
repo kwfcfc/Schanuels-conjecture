@@ -239,7 +239,8 @@ not presented as a solution of the full task.
   `2a` and norm `a²−d²b²` in `A`.  The exponential coordinates form a nontrivial Pell point:
   `α²−b²δ²=1`, with `δ≠0` and `α²≠1`.  No positive power satisfies `y^m=y⁻ᵐ`; in degree two every
   `y^m` remains outside `A`, primitively generates the same full field, and has exact minimal
-  polynomial `X²−(y^m+y⁻ᵐ)X+1` over `A`.
+  polynomial `X²−(y^m+y⁻ᵐ)X+1` over `A`.  The powers are pairwise distinct, and even their
+  reciprocal traces `y^m+y⁻ᵐ` are pairwise distinct for positive indices.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

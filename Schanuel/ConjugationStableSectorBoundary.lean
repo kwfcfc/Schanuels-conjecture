@@ -7363,6 +7363,75 @@ theorem PositiveEigenvectorTerminalWitness.adjoin_terminalExp_pow_eq_lastExp
     _ = IntermediateField.adjoin A ({y} : Set ℂ) :=
       W.adjoin_lastInput_eq_adjoin_lastExp_initialAnalytic
 
+/-- The terminal exponential has infinite multiplicative order. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExp_pow_ne_one
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) (m : ℕ) (hm : 0 < m) :
+    selectedExpInFull u (Fin.last (n + 2)) ^ m ≠ 1 := by
+  intro hone
+  apply W.terminalExp_pow_ne_inv m hm
+  rw [hone, inv_one]
+
+/-- Consequently, its nonnegative integral powers are pairwise distinct. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExp_pow_injective
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    Function.Injective
+      (fun m : ℕ ↦ selectedExpInFull u (Fin.last (n + 2)) ^ m) := by
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  have hy0 : yF ≠ 0 := by
+    intro hy
+    exact Complex.exp_ne_zero (u (Fin.last (n + 2))) (congrArg Subtype.val hy)
+  have hsub (a b : ℕ) (hab : a ≤ b) (heq : yF ^ a = yF ^ b) :
+      yF ^ (b - a) = 1 := by
+    apply mul_left_cancel₀ (pow_ne_zero a hy0)
+    calc
+      yF ^ a * yF ^ (b - a) = yF ^ (a + (b - a)) := (pow_add yF a (b - a)).symm
+      _ = yF ^ b := by rw [Nat.add_sub_of_le hab]
+      _ = yF ^ a := heq.symm
+      _ = yF ^ a * 1 := (mul_one _).symm
+  intro a b heq
+  apply Nat.le_antisymm
+  · by_contra hab
+    have hba : b < a := Nat.lt_of_not_ge hab
+    exact W.terminalExp_pow_ne_one (a - b) (Nat.sub_pos_of_lt hba)
+      (hsub b a hba.le heq.symm)
+  · by_contra hba
+    have hab : a < b := Nat.lt_of_not_ge hba
+    exact W.terminalExp_pow_ne_one (b - a) (Nat.sub_pos_of_lt hab)
+      (hsub a b hab.le heq)
+
+/-- Even the reciprocal traces of the positive Pell orbit are pairwise distinct.  Equality of two
+traces factors as `(y^m-y^k)(y^(m+k)-1)=0`. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExp_tracePow_injective
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) {m k : ℕ}
+    (hm : 0 < m) :
+    selectedExpInFull u (Fin.last (n + 2)) ^ m +
+        (selectedExpInFull u (Fin.last (n + 2)) ^ m)⁻¹ =
+      selectedExpInFull u (Fin.last (n + 2)) ^ k +
+        (selectedExpInFull u (Fin.last (n + 2)) ^ k)⁻¹ →
+      m = k := by
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  intro htrace
+  let x := yF ^ m
+  let z := yF ^ k
+  have hy0 : yF ≠ 0 := by
+    intro hy
+    exact Complex.exp_ne_zero (u (Fin.last (n + 2))) (congrArg Subtype.val hy)
+  have hx0 : x ≠ 0 := pow_ne_zero m hy0
+  have hz0 : z ≠ 0 := pow_ne_zero k hy0
+  change x + x⁻¹ = z + z⁻¹ at htrace
+  have hfactor : (x - z) * (x * z - 1) = 0 := by
+    field_simp [hx0, hz0] at htrace ⊢
+    linear_combination htrace
+  rcases mul_eq_zero.mp hfactor with hxz | hxz
+  · exact W.terminalExp_pow_injective (sub_eq_zero.mp hxz)
+  · have hunit : yF ^ (m + k) = 1 := by
+      rw [pow_add]
+      exact sub_eq_zero.mp hxz
+    exact False.elim (W.terminalExp_pow_ne_one (m + k) (Nat.add_pos_left hm k) hunit)
+
 /-- In every branch, each deck transformation over the analytic shadow preserves the genuine
 terminal exponential equation. -/
 theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible
