@@ -15314,6 +15314,14 @@ For an arbitrary `z=a+d*b` in the degree-two branch and the nonidentity switch,
 with both displayed values represented by actual elements of `A`.  Hence the full residual field
 is now concrete as a quadratic algebra, including its product, conjugation, trace, and norm.
 
+For the exponential unit itself, the norm formula becomes a nontrivial Pell point over `A`:
+
+`alpha^2-b2*delta^2=1`, with `delta != 0` and `alpha^2 != 1`,
+`y=alpha+delta*b`, `y^(-1)=alpha-delta*b`.                     `(RQ104)`
+
+Thus the remaining analytic datum is an explicitly nonconstant norm-one unit on the quadratic
+conic attached to the nonsquare generator `b2`.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15740,3 +15748,5 @@ The nonzero affine analytic-shadow coordinates of the terminal exponential and i
 `(RQ101)` have the same audit result.
 The explicit quadratic coordinate multiplication law `(RQ102)` and arbitrary-element
 trace/norm formulas `(RQ103)` have likewise been audited with only those three axioms.
+The nontrivial analytic-shadow Pell coordinates of the terminal exponential `(RQ104)` have the
+same audit result.

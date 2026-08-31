@@ -3331,6 +3331,53 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_terminalExp_affine_co
     rw [hodd]
     ring
 
+/-- The affine coordinates of the terminal exponential form a nontrivial norm-one point on the
+Pell conic `a² - b²d² = 1` over the analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_terminalExp_pell_coordinates
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    ∃ b2 a d : A,
+      (b2 : ℂ) = u (Fin.last (n + 2)) ^ 2 ∧
+      d ≠ 0 ∧
+      a ^ 2 ≠ 1 ∧
+      a ^ 2 - d ^ 2 * b2 = 1 ∧
+      Complex.exp (u (Fin.last (n + 2))) =
+        (a : ℂ) + (d : ℂ) * u (Fin.last (n + 2)) ∧
+      (Complex.exp (u (Fin.last (n + 2))))⁻¹ =
+        (a : ℂ) - (d : ℂ) * u (Fin.last (n + 2)) := by
+  dsimp only
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  obtain ⟨a, d, hd0, -, -, hy, hyinv⟩ :=
+    W.initialAnalytic_terminalExp_affine_coordinates
+  have hb2A : b ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert (b ^ 2) _)
+  let b2 : A := ⟨b ^ 2, hb2A⟩
+  have hb20 : b2 ≠ 0 := by
+    intro hb2
+    apply W.last_ne_zero
+    have h := congrArg ((↑) : A → ℂ) hb2
+    change b ^ 2 = 0 at h
+    exact eq_zero_of_pow_eq_zero h
+  have hpell : a ^ 2 - d ^ 2 * b2 = 1 := by
+    apply Subtype.ext
+    change (a : ℂ) ^ 2 - (d : ℂ) ^ 2 * b ^ 2 = 1
+    calc
+      (a : ℂ) ^ 2 - (d : ℂ) ^ 2 * b ^ 2 =
+          ((a : ℂ) + (d : ℂ) * b) * ((a : ℂ) - (d : ℂ) * b) := by ring
+      _ = y * y⁻¹ := by rw [← hy, ← hyinv]
+      _ = 1 := mul_inv_cancel₀ (Complex.exp_ne_zero b)
+  have ha1 : a ^ 2 ≠ 1 := by
+    intro ha
+    have hp := hpell
+    rw [ha] at hp
+    exact (mul_ne_zero (pow_ne_zero 2 hd0) hb20) (sub_eq_self.mp hp)
+  exact ⟨b2, a, d, rfl, hd0, ha1, hpell, hy, hyinv⟩
+
 /-- The analytic terminal real core remains pointwise fixed by complex conjugation. -/
 theorem PositiveEigenvectorTerminalWitness.eigenvectorTerminalAnalyticRealCore_le_fixed
     {n : ℕ} {u : Fin (n + 3) → ℂ}
