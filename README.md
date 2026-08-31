@@ -294,6 +294,10 @@ not presented as a solution of the full task.
   result is conditional and does not assert that a terminal direction is a sum of squares.
 - [`Schanuel/ConfluentVandermonde.lean`](./Schanuel/ConfluentVandermonde.lean) proves the sharp
   repeated-node polynomial zero estimate used in the audited auxiliary-function counts.
+- [`Schanuel/MixedRadixJets.lean`](./Schanuel/MixedRadixJets.lean) constructs the exact
+  consecutive confluent-jet equivalence and proves that an abstract two-block mixed-radix initial
+  jet matrix is triangular with the expected determinant.  Hence any nonzero coefficient family
+  has a nonzero jet strictly below the product threshold.
 - [`Schanuel/MixedObstruction.lean`](./Schanuel/MixedObstruction.lean) proves that the bound for
   the linearly independent family `(log 2, log 2 + 1)` is exactly algebraic independence of
   `(log 2, e)`.

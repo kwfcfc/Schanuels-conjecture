@@ -15665,6 +15665,50 @@ negative and the totally positive norm-one unit `3+2*sqrt 2` to its inverse.  He
 total positivity, the unit condition, and the Pell equation do not imply the required
 sum-of-squares property or preservation of the inherited order.
 
+### Sharp mixed-radix jets expose the exact Hilbert-count loss
+
+The local auxiliary-function scalarization can be made exact.  For box degrees `D_i,E_i`, put
+
+`m_i=(D_i+1)(E_i+1)`, `W_1=1`, `W_i=product_(j<i)m_j`,
+`M=product_i m_i`.                                                `(MR1)`
+
+For a polynomial `P` in that box, restrict it along
+
+`Phi_P(t)=P(z_i+t^(W_i), exp(z_i)exp(t^(W_i)))_i`.                `(MR2)`
+
+One-coordinate confluent interpolation supplies a normalized local basis with initial orders
+`0,...,m_i-1`.  After the substitutions `t|->t^(W_i)`, tensor products have the distinct
+mixed-radix orders `0,...,M-1`.  Consequently the first `M` Taylor coefficients form an
+isomorphism and every nonzero `P` satisfies
+
+`ord_0 Phi_P <= M-1`,                                             `(MR3)`
+
+sharply.  `Schanuel/MixedRadixJets.lean` formalizes the reusable algebraic core: the consecutive
+confluent-jet equivalence, normalization of its coordinate polynomials, injectivity of the
+two-block mixed-radix code, the exact triangular determinant, and the resulting nonzero jet below
+`outer*inner`.
+
+The sharp result also proves why this local route alone cannot reach the conjecture.  If `H` is
+the rational dimension of the span of the box monomial values at `(z,exp z)`, every Taylor
+coefficient of `(MR2)` still belongs to that same `H`-dimensional space.  Siegel dimension
+counting guarantees order `T` only when
+
+`T*H < M`,                                                       `(MR4)`
+
+whereas contradiction with `(MR3)` requires `T>=M`.  These inequalities are incompatible even
+before asymptotics.  For uniform box size `R` and transcendence degree `d`, the best guaranteed
+order is `Theta(R^(2n-d))` against a threshold `Theta(R^(2n))`; the missing factor is precisely
+the Hilbert function `Theta(R^d)`.
+
+A genuinely different global target survives.  For the full translate
+`Psi_P(s)=P(w+s,exp(w)exp(s))`, integral coefficients give the second endpoint
+`Psi_P(-w)=P(0,1) in Z`.  The next auxiliary construction must therefore find a low-height,
+box-degree-`R` polynomial with high-order graph jets at `(w,exp w)` but with `P(0,1)!=0`.
+Ordinary homogeneous Siegel counting does not guarantee escape from the endpoint kernel; the
+tautological escape polynomial at the canonical anchor spends degree equal to the required
+vanishing order.  This is an affine/congruence interpolation problem, not another local
+multiplicity estimate.
+
 ## Active next steps
 
 1. Continue searching for a higher-dimensional mechanism that genuinely overcomes either the
@@ -15690,7 +15734,7 @@ The project is pinned to Lean 4.29.1 and Mathlib 4.29.1. The complete command is
 nix develop -c lake build
 ```
 
-The registered root list contains fifty-one modules. The full build succeeds with 2956 jobs.
+The registered root list contains fifty-two modules. The full build succeeds with 2958 jobs.
 Current output contains only harmless linter advice (principally unused generic Galois section
 hypotheses and minor simplification suggestions); there are no errors or proof placeholders.
 The new restriction, rational-hyperplane, algebraicity, least-failure, defect-one equivalence, and
@@ -15872,3 +15916,5 @@ The Kähler span/compatible-derivation equivalence and its specialization to the
 exponential graph field `(DT1)--(DT2)`, together with the ordered-field two-sided
 sum-of-squares obstruction and real-closed corollary, have likewise been audited with only those
 three axioms.
+The consecutive confluent-jet equivalence and exact two-block mixed-radix determinant/nonzero-jet
+threshold have likewise been audited with only those three axioms.
