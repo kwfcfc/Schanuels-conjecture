@@ -189,7 +189,15 @@ theorem boxCoefficients_eq_sum_basis (c : α → β → K) :
     c = ∑ a, ∑ b, c a b • boxBasis (K := K) a b := by
   classical
   funext a b
-  simp [boxBasis]
+  rw [Finset.sum_apply, Finset.sum_eq_single a]
+  · rw [Finset.sum_apply, Finset.sum_eq_single b]
+    · simp [boxBasis]
+    · intro b' _ hb'
+      simp [boxBasis, hb']
+    · simp
+  · intro a' _ ha'
+    simp [boxBasis, ha']
+  · simp
 
 /-- The concrete box endpoint-escape problem is exactly the abstract row-span
 obstruction for the finite jet map. -/
