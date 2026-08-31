@@ -305,7 +305,7 @@ theorem not_conjecture_iff_exists_criticalPeriodEquality :
           · have hne : k.castSucc.castSucc ≠ target := by
               intro heq
               have := congrArg Fin.val heq
-              simp [target] at this
+              simp only [Fin.val_castSucc, Fin.val_last, target] at this
               exact (Nat.ne_of_lt k.isLt) this
             simp [t, target, pivot, a, v, u, hne]
       have hvperiod : LinearIndependent ℚ v ∧

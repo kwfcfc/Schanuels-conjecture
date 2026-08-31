@@ -136,7 +136,7 @@ theorem ofPolynomial_ne_zero [Field K] [CharZero K]
 
 section OrbitProduct
 
-variable [Field K] [CharZero K] [Group Γ] [Fintype Γ]
+variable [Field K] [Group Γ] [Fintype Γ]
 variable [MulSemiringAction Γ K]
 
 /-- Transport formal exponents by one member of the finite automorphism
@@ -144,11 +144,13 @@ group.  Coefficients are left untouched. -/
 def twist (g : Γ) : AddMonoidAlgebra ℤ K ≃ₐ[ℤ] AddMonoidAlgebra ℤ K :=
   AddMonoidAlgebra.domCongr ℤ ℤ (DistribMulAction.toAddEquiv K g)
 
+omit [Fintype Γ] in
 @[simp]
 theorem twist_apply (g : Γ) (F : AddMonoidAlgebra ℤ K) (x : K) :
     twist g F x = F (g⁻¹ • x) := by
   simp [twist]
 
+omit [Fintype Γ] in
 @[simp]
 theorem twist_one (F : AddMonoidAlgebra ℤ K) :
     twist (1 : Γ) F = F := by
@@ -159,7 +161,7 @@ theorem twist_one (F : AddMonoidAlgebra ℤ K) :
 def orbitProduct (F : AddMonoidAlgebra ℤ K) : AddMonoidAlgebra ℤ K :=
   ∏ g : Γ, twist g F
 
-theorem orbitProduct_ne_zero {F : AddMonoidAlgebra ℤ K} (hF : F ≠ 0) :
+theorem orbitProduct_ne_zero [CharZero K] {F : AddMonoidAlgebra ℤ K} (hF : F ≠ 0) :
     orbitProduct (Γ := Γ) F ≠ 0 := by
   apply Finset.prod_ne_zero_iff.mpr
   intro g _
@@ -174,6 +176,7 @@ theorem twist_orbitProduct (g : Γ) (F : AddMonoidAlgebra ℤ K) :
   ext x
   simp [twist, mul_smul]
 
+omit [Fintype Γ] in
 /-- Transport by an additive automorphism commutes with exponent-reversal. -/
 theorem twist_reflect (g : Γ) (F : AddMonoidAlgebra ℤ K) :
     twist g (reflect F) = reflect (twist g F) := by
@@ -210,21 +213,22 @@ theorem exponentialEval_stableRelation_zero (iota : K →+ ℂ)
   rw [stableRelation, map_mul,
     exponentialEval_orbitProduct_zero iota hF, zero_mul]
 
-theorem stableRelation_apply_zero_pos {F : AddMonoidAlgebra ℤ K} (hF : F ≠ 0) :
+theorem stableRelation_apply_zero_pos [CharZero K] {F : AddMonoidAlgebra ℤ K} (hF : F ≠ 0) :
     0 < stableRelation (Γ := Γ) F 0 := by
   exact mul_reflect_apply_zero_pos (orbitProduct_ne_zero (Γ := Γ) hF)
 
-theorem stableRelation_ne_zero {F : AddMonoidAlgebra ℤ K} (hF : F ≠ 0) :
+theorem stableRelation_ne_zero [CharZero K] {F : AddMonoidAlgebra ℤ K} (hF : F ≠ 0) :
     stableRelation (Γ := Γ) F ≠ 0 := by
   intro hzero
   have h := congrArg (fun A : AddMonoidAlgebra ℤ K ↦ A 0) hzero
   have hpos := stableRelation_apply_zero_pos (Γ := Γ) hF
   exact hpos.ne' h
 
+omit [Fintype Γ] in
 /-- A finite integral relation at `exp(ι z)` yields a nonzero, finite,
 Galois-stable integral relation with nonzero constant coefficient and the same
 analytic vanishing.  The automorphisms act only on formal exponents. -/
-theorem exists_stableRelation_of_aeval_eq_zero
+theorem exists_stableRelation_of_aeval_eq_zero [CharZero K] [Finite Γ]
     (iota : K →+ ℂ) {z : K} (hz : z ≠ 0) {q : ℤ[X]}
     (hq0 : q.eval 0 ≠ 0)
     (hrel : aeval (Complex.exp (iota z)) q = 0) :
@@ -233,6 +237,7 @@ theorem exists_stableRelation_of_aeval_eq_zero
         (∀ g : Γ, twist g A = A) ∧
         ∀ g : Γ,
           A.support.map (DistribMulAction.toAddEquiv K g).toEmbedding = A.support := by
+  letI := Fintype.ofFinite Γ
   let F := ofPolynomial z q
   let A := stableRelation (Γ := Γ) F
   have hF0 : F ≠ 0 := ofPolynomial_ne_zero hz hq0

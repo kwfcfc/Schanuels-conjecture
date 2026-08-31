@@ -81,7 +81,7 @@ theorem ofPolynomial_hasIntegralSupport [Field K] [CharZero K]
 
 section Orbit
 
-variable [Field K] [CharZero K] [Group Γ] [Fintype Γ]
+variable [Field K] [Group Γ] [Fintype Γ]
 variable [MulSemiringAction Γ K]
 
 theorem HasIntegralSupport.reflect {F : AddMonoidAlgebra ℤ K}
@@ -93,6 +93,7 @@ theorem HasIntegralSupport.reflect {F : AddMonoidAlgebra ℤ K}
   have := (hF (-x) hneg).neg
   simpa using this
 
+omit [Fintype Γ] in
 theorem HasIntegralSupport.twist (F : AddMonoidAlgebra ℤ K)
     (hF : HasIntegralSupport F) (g : Γ) : HasIntegralSupport (twist g F) := by
   intro x hx
@@ -118,7 +119,7 @@ theorem orbitProduct_hasIntegralSupport (F : AddMonoidAlgebra ℤ K)
 
 /-- If the original exponent is integral, every exponent in the support of
 the symmetrized relation is integral, including after exponent-reversal. -/
-theorem stableRelation_ofPolynomial_hasIntegralSupport
+theorem stableRelation_ofPolynomial_hasIntegralSupport [CharZero K]
     {z : K} (hz : IsIntegral ℤ z) (q : ℤ[X]) :
     HasIntegralSupport
       (stableRelation (Γ := Γ) (ofPolynomial z q)) := by
@@ -163,6 +164,7 @@ section Descent
 variable [Field K] [CharZero K] [Algebra ℚ K]
   [FiniteDimensional ℚ K] [IsGalois ℚ K]
 
+omit [FiniteDimensional ℚ K] [IsGalois ℚ K] in
 theorem weightedAevalSum_galois_fixed
     (A : AddMonoidAlgebra ℤ K) (gp : ℤ[X])
     (hstable : ∀ σ : K ≃ₐ[ℚ] K, twist σ A = A) :

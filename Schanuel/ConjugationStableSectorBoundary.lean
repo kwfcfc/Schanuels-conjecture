@@ -7796,7 +7796,8 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_trace_norm_of_finrank
   have htracey := trace_eq_sum_automorphisms (K := A) (L := F) y
   have hnormy := Algebra.norm_eq_prod_automorphisms (K := A) (L := F) y
   rw [huniv] at htraceb hnormb htracey hnormy
-  simp [hσ] at htraceb hnormb htracey hnormy
+  simp only [Finset.mem_singleton, hσ, not_false_eq_true, Finset.sum_insert, Finset.sum_singleton,
+    AlgEquiv.one_apply, Finset.prod_insert, Finset.prod_singleton] at htraceb hnormb htracey hnormy
   rw [hswitch.1] at htraceb hnormb
   rw [hswitch.2] at htracey hnormy
   have hy0 : selectedExpInFull u (Fin.last (n + 2)) ≠ 0 := by

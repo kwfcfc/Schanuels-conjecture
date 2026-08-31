@@ -105,15 +105,12 @@ theorem generatedField_eq_adjoin_core :
       fin_cases i
       · exact IntermediateField.subset_adjoin ℚ _ ⟨0, rfl⟩
       · have hone : (1 : ℂ) ∈ IntermediateField.adjoin ℚ (Set.range core) := by
-          simpa using (IntermediateField.algebraMap_mem
-            (IntermediateField.adjoin ℚ (Set.range core)) (1 : ℚ))
+          simp
         exact (IntermediateField.adjoin ℚ (Set.range core)).add_mem
           (IntermediateField.subset_adjoin ℚ _ ⟨0, rfl⟩) hone
     · obtain ⟨i, rfl⟩ := hx
       fin_cases i
-      · simpa [family] using
-          (IntermediateField.algebraMap_mem
-            (IntermediateField.adjoin ℚ (Set.range core)) (2 : ℚ))
+      · simp [family]
       · simpa [family, Complex.exp_add, exp_logTwo] using
           (IntermediateField.adjoin ℚ (Set.range core)).mul_mem
           (IntermediateField.algebraMap_mem _ (2 : ℚ))

@@ -25,7 +25,7 @@ def periodShift (k : ℕ) (x : ℂ) : ℂ :=
 
 @[simp]
 theorem exp_standardPeriod : Complex.exp standardPeriod = 1 := by
-  simpa [standardPeriod, PeriodLogBoundary.period] using Complex.exp_two_pi_mul_I
+  simp [standardPeriod, PeriodLogBoundary.period]
 
 @[simp]
 theorem exp_periodShift (k : ℕ) (x : ℂ) :
@@ -47,7 +47,9 @@ theorem exists_transcendental_periodShift {x : ℂ}
   · have hfirstAlg : IsAlgebraic ℚ (periodShift 1 x) := not_not.mp hfirst
     have hsecond : Transcendental ℚ (periodShift 2 x) := by
       have hadd := transcendental_add_of_isAlgebraic_left hfirstAlg hx
-      convert hadd using 1 <;> simp [periodShift] <;> ring
+      convert hadd using 1
+      simp [periodShift]
+      ring
     refine ⟨2, Or.inr rfl, hsecond, ?_⟩
     simpa using hexp.pow (by norm_num : 0 < 2)
 

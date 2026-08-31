@@ -167,16 +167,14 @@ theorem generatedField_eq_adjoin_core :
       · change family 0 ∈ IntermediateField.adjoin ℚ (Set.range core)
         rw [family_zero]
         have hone : (1 : ℂ) ∈ IntermediateField.adjoin ℚ (Set.range core) := by
-          simpa using (IntermediateField.algebraMap_mem
-            (IntermediateField.adjoin ℚ (Set.range core)) (1 : ℚ))
+          simp
         exact (IntermediateField.adjoin ℚ (Set.range core)).add_mem
           hone
           (IntermediateField.subset_adjoin ℚ _ ⟨0, rfl⟩)
       · change family 1 ∈ IntermediateField.adjoin ℚ (Set.range core)
         rw [family_one]
         have hone : (1 : ℂ) ∈ IntermediateField.adjoin ℚ (Set.range core) := by
-          simpa using (IntermediateField.algebraMap_mem
-            (IntermediateField.adjoin ℚ (Set.range core)) (1 : ℚ))
+          simp
         exact (IntermediateField.adjoin ℚ (Set.range core)).add_mem
           hone
           ((IntermediateField.adjoin ℚ (Set.range core)).mul_mem
@@ -195,7 +193,7 @@ theorem generatedField_eq_adjoin_core :
     · have hx0 : family 0 ∈ generatedField family :=
         IntermediateField.subset_adjoin ℚ _ (Or.inl ⟨0, rfl⟩)
       have hone : (1 : ℂ) ∈ generatedField family :=
-        by simpa using (IntermediateField.algebraMap_mem (generatedField family) (1 : ℚ))
+        by simp
       rw [family_zero] at hx0
       simpa using (generatedField family).sub_mem hx0 hone
     · exact IntermediateField.subset_adjoin ℚ _ (Or.inr ⟨0, exp_family_zero⟩)

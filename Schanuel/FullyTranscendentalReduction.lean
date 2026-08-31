@@ -55,12 +55,13 @@ theorem transcendental_fullTranscendenceShear {n : ℕ} {z : Fin n → ℂ}
   by_cases hexp : Transcendental ℚ (Complex.exp (z i))
   · simpa [fullTranscendenceShear, fullTranscendenceCoeffs, hexp] using hz i
   by_cases hone : Transcendental ℚ (z i + z j)
-  · simpa [fullTranscendenceShear, fullTranscendenceCoeffs, hexp, hone] using hone
+  · simp [fullTranscendenceShear, fullTranscendenceCoeffs, hexp, hone]
   · have honeAlg : IsAlgebraic ℚ (z i + z j) := not_not.mp hone
     have htwo : Transcendental ℚ ((z i + z j) + z j) :=
       transcendental_add_of_isAlgebraic_left honeAlg (hz j)
-    convert htwo using 1 <;>
-      simp [fullTranscendenceShear, fullTranscendenceCoeffs, hexp, hone] <;> ring
+    convert htwo using 1
+    simp [fullTranscendenceShear, fullTranscendenceCoeffs, hexp, hone]
+    ring
 
 /-- If the pivot exponential is transcendental, the selected shear makes every exponential
 transcendental. -/
@@ -69,7 +70,7 @@ theorem transcendental_exp_fullTranscendenceShear {n : ℕ} {z : Fin n → ℂ}
     ∀ i, Transcendental ℚ (Complex.exp (fullTranscendenceShear z j i)) := by
   intro i
   by_cases hexp : Transcendental ℚ (Complex.exp (z i))
-  · simpa [fullTranscendenceShear, fullTranscendenceCoeffs, hexp] using hexp
+  · simp [fullTranscendenceShear, fullTranscendenceCoeffs, hexp]
   have hexpAlg : IsAlgebraic ℚ (Complex.exp (z i)) := not_not.mp hexp
   have hexp0 : Complex.exp (z i) ≠ 0 := Complex.exp_ne_zero _
   by_cases hone : Transcendental ℚ (z i + z j)

@@ -73,7 +73,9 @@ theorem rationalMatrixFamily_adjacentPeriodMatrix_zero {n : ℕ}
       u 0 + k • (∑ i, c i • u i) := by
   have hone : (∑ i, (1 : Matrix (Fin (n + 2)) (Fin (n + 2)) ℚ) 0 i • u i) = u 0 := by
     simpa [rationalMatrixFamily] using congrFun (rationalMatrixFamily_one u) 0
-  simp [adjacentPeriodMatrix, coefficientRowMatrix, rationalMatrixFamily]
+  simp only [rationalMatrixFamily, adjacentPeriodMatrix, coefficientRowMatrix, ne_eq,
+    zero_ne_one, not_false_eq_true, Matrix.updateRow_ne, Matrix.updateRow_self, one_ne_zero,
+    Pi.add_apply, Pi.smul_apply, smul_eq_mul]
   simp only [add_smul, Finset.sum_add_distrib, mul_smul, Finset.smul_sum]
   rw [hone]
 
@@ -85,7 +87,9 @@ theorem rationalMatrixFamily_adjacentPeriodMatrix_one {n : ℕ}
       u 0 + (k + 1) • (∑ i, c i • u i) := by
   have hone : (∑ i, (1 : Matrix (Fin (n + 2)) (Fin (n + 2)) ℚ) 0 i • u i) = u 0 := by
     simpa [rationalMatrixFamily] using congrFun (rationalMatrixFamily_one u) 0
-  simp [adjacentPeriodMatrix, coefficientRowMatrix, rationalMatrixFamily]
+  simp only [rationalMatrixFamily, adjacentPeriodMatrix, coefficientRowMatrix, ne_eq,
+    zero_ne_one, not_false_eq_true, Matrix.updateRow_ne, Matrix.updateRow_self, one_ne_zero,
+    Pi.add_apply, Pi.smul_apply, smul_eq_mul]
   simp only [add_smul, Finset.sum_add_distrib, mul_smul, Finset.smul_sum]
   rw [hone]
   simp only [one_smul]
