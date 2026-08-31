@@ -1,4 +1,4 @@
-import Mathlib.LinearAlgebra.Basic
+import Mathlib.LinearAlgebra.FiniteDimensional.Basic
 
 /-!
 # Affine endpoint interpolation
