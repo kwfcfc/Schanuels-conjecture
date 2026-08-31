@@ -50,8 +50,13 @@ def boxJetMap (jetCoeff : α → β → ι → K) :
 @[simp] theorem boxJetMap_boxBasis (jetCoeff : α → β → ι → K)
     (a : α) (b : β) :
     boxJetMap jetCoeff (boxBasis (K := K) a b) = jetCoeff a b := by
+  change
+    (boxBasisBasis (K := K) (α := α) (β := β)).constr K
+      (fun ab => jetCoeff ab.1 ab.2) (boxBasis (K := K) a b) =
+        jetCoeff a b
   rw [boxBasis_eq_basis]
-  simp [boxJetMap]
+  exact (boxBasisBasis (K := K) (α := α) (β := β)).constr_basis K
+    (fun ab => jetCoeff ab.1 ab.2) ⟨a, b⟩
 
 @[simp] theorem boxEndpoint_boxBasis_same (a : α) (b : β) :
     boxEndpoint (K := K) (β := β) a (boxBasis (K := K) a b) = 1 := by
@@ -62,7 +67,7 @@ theorem boxEndpoint_boxBasis_of_ne {a₀ a : α} (b : β) (h : a₀ ≠ a) :
     boxEndpoint (K := K) (β := β) a₀ (boxBasis (K := K) a b) = 0 := by
   classical
   have h' : a ≠ a₀ := Ne.symm h
-  simp [boxEndpoint, h']
+  simp [boxEndpoint, boxBasis, h']
 
 /-- Linear maps out of the coefficient box are determined by their values on
 box monomials. -/
