@@ -81,7 +81,6 @@ theorem endpointKillsJetKernel_iff_mem_range_dualMap
   rw [LinearMap.range_dualMap_eq_dualAnnihilator_ker,
     Submodule.mem_dualAnnihilator]
   simp only [EndpointKillsJetKernel, LinearMap.mem_ker]
-  rfl
 
 /-- Endpoint escape is equivalently the assertion that the endpoint functional
 is not a linear combination of the jet constraints.  This is the exact
@@ -121,7 +120,7 @@ def boxEndpoint (a₀ : α) : (α → β → K) →ₗ[K] K where
 functional is surjective: a single coefficient in the distinguished row can
 realize any prescribed endpoint value. -/
 theorem boxEndpoint_surjective [Nonempty β] (a₀ : α) :
-    Function.Surjective (boxEndpoint (K := K) a₀) := by
+    Function.Surjective (boxEndpoint (K := K) (β := β) a₀) := by
   classical
   let b₀ : β := Classical.choice (inferInstance : Nonempty β)
   intro y
@@ -131,9 +130,9 @@ theorem boxEndpoint_surjective [Nonempty β] (a₀ : α) :
 /-- In particular the box endpoint is a nonzero linear functional whenever
 the exponential block is nonempty. -/
 theorem boxEndpoint_ne_zero [Nonempty β] (a₀ : α) :
-    boxEndpoint (K := K) a₀ ≠ 0 := by
+    boxEndpoint (K := K) (β := β) a₀ ≠ 0 := by
   intro hzero
-  obtain ⟨c, hc⟩ := boxEndpoint_surjective (K := K) a₀ 1
+  obtain ⟨c, hc⟩ := boxEndpoint_surjective (K := K) (β := β) a₀ 1
   rw [hzero, LinearMap.zero_apply] at hc
   exact one_ne_zero hc.symm
 
