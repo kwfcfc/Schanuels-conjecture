@@ -15353,6 +15353,16 @@ Even passage to the analytic-shadow trace loses no positive index:
 The last statement follows from the exact factorization
 `(y^m-y^k)*(y^(m+k)-1)=0` and the preceding torsion exclusion.  Hence `A` contains a pairwise
 distinct infinite sequence of reciprocal traces whose corresponding points all generate `L`.
+This infinite sequence supplies no hidden transcendence growth: writing `T_m=y^m+y^(-m)`, Lean
+proves the exact Chebyshev recurrence
+
+`T_0=2`, `T_1=y+y^(-1)`,
+`T_(m+2)=T_1*T_(m+1)-T_m`.                                    `(RQ112)`
+
+Induction on this recurrence shows that every `T_m` already belongs to the original square/trace
+real core, before adjoining the mixed invariant `(RQ113)`.  Thus the infinite Pell orbit is a
+rigid one-parameter recurrence inside the existing base rather than a source of additional field
+degree.
 
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
@@ -15790,3 +15800,5 @@ The exact reciprocal quadratic minimal polynomial of every positive terminal exp
 Infinite multiplicative order `(RQ109)`, injectivity of the nonnegative power orbit `(RQ110)`,
 and injectivity of its positive reciprocal-trace sequence `(RQ111)` have likewise been audited
 with only those three axioms.
+The exact Chebyshev recurrence for the reciprocal traces `(RQ112)` and containment of every term
+in the original square/trace real core `(RQ113)` have the same audit result.

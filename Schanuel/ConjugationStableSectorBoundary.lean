@@ -7432,6 +7432,59 @@ theorem PositiveEigenvectorTerminalWitness.terminalExp_tracePow_injective
       exact sub_eq_zero.mp hxz
     exact False.elim (W.terminalExp_pow_ne_one (m + k) (Nat.add_pos_left hm k) hunit)
 
+/-- The reciprocal trace of the `m`-th terminal exponential power. -/
+def terminalExpTracePower {n : ℕ} (u : Fin (n + 3) → ℂ) (m : ℕ) : ℂ :=
+  let y := Complex.exp (u (Fin.last (n + 2)))
+  y ^ m + (y ^ m)⁻¹
+
+@[simp]
+theorem terminalExpTracePower_zero {n : ℕ} (u : Fin (n + 3) → ℂ) :
+    terminalExpTracePower u 0 = 2 := by
+  norm_num [terminalExpTracePower]
+
+@[simp]
+theorem terminalExpTracePower_one {n : ℕ} (u : Fin (n + 3) → ℂ) :
+    terminalExpTracePower u 1 = Complex.exp (u (Fin.last (n + 2))) +
+      (Complex.exp (u (Fin.last (n + 2))))⁻¹ := by
+  simp [terminalExpTracePower]
+
+/-- The reciprocal traces obey the usual Chebyshev recurrence. -/
+theorem terminalExpTracePower_add_two {n : ℕ} (u : Fin (n + 3) → ℂ) (m : ℕ) :
+    terminalExpTracePower u (m + 2) =
+      terminalExpTracePower u 1 * terminalExpTracePower u (m + 1) -
+        terminalExpTracePower u m := by
+  let y := Complex.exp (u (Fin.last (n + 2)))
+  have hy0 : y ≠ 0 := Complex.exp_ne_zero _
+  dsimp only [terminalExpTracePower]
+  simp only [pow_one]
+  change y ^ (m + 2) + (y ^ (m + 2))⁻¹ =
+    (y + y⁻¹) * (y ^ (m + 1) + (y ^ (m + 1))⁻¹) -
+      (y ^ m + (y ^ m)⁻¹)
+  field_simp [hy0, pow_succ]
+  ring
+
+/-- Despite being pairwise distinct, every reciprocal trace in the Pell orbit already belongs to
+the original square/trace real core, before the mixed invariant is adjoined. -/
+theorem terminalExpTracePower_mem_realCore
+    {n : ℕ} (u : Fin (n + 3) → ℂ) (m : ℕ) :
+    terminalExpTracePower u m ∈ eigenvectorTerminalRealCore u := by
+  let C := eigenvectorTerminalRealCore u
+  induction m using Nat.twoStepInduction with
+  | zero =>
+      rw [terminalExpTracePower_zero]
+      exact C.natCast_mem 2
+  | one =>
+      rw [terminalExpTracePower_one]
+      exact IntermediateField.subset_adjoin ℚ _
+        (Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton _)))
+  | more m hm hm1 =>
+      rw [terminalExpTracePower_add_two]
+      exact C.sub_mem (C.mul_mem
+        (by
+          rw [terminalExpTracePower_one]
+          exact IntermediateField.subset_adjoin ℚ _
+            (Set.mem_insert_iff.mpr (Or.inr (Set.mem_singleton _)))) hm1) hm
+
 /-- In every branch, each deck transformation over the analytic shadow preserves the genuine
 terminal exponential equation. -/
 theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible
