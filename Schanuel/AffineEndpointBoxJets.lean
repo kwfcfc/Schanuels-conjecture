@@ -61,7 +61,7 @@ def boxJetMap (jetCoeff : α → β → ι → K) :
 @[simp] theorem boxEndpoint_boxBasis_same (a : α) (b : β) :
     boxEndpoint (K := K) (β := β) a (boxBasis (K := K) a b) = 1 := by
   classical
-  simp [boxEndpoint]
+  simp [boxEndpoint, boxBasis]
 
 theorem boxEndpoint_boxBasis_of_ne {a₀ a : α} (b : β) (h : a₀ ≠ a) :
     boxEndpoint (K := K) (β := β) a₀ (boxBasis (K := K) a b) = 0 := by
