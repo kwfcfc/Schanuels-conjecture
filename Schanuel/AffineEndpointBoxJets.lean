@@ -15,6 +15,8 @@ not yet assert the arithmetic nonexistence of a dual certificate.
 
 namespace Schanuel
 
+open Module
+
 noncomputable section
 
 section BoxJets
