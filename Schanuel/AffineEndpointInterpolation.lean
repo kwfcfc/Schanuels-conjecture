@@ -1,4 +1,5 @@
 import Mathlib.LinearAlgebra.FiniteDimensional.Basic
+import Mathlib.LinearAlgebra.Dual.Lemmas
 
 /-!
 # Affine endpoint interpolation
@@ -70,7 +71,73 @@ theorem endpointEscape_iff_exists_normalized
     rw [hvend]
     exact one_ne_zero
 
+/-- The endpoint kills every homogeneous jet solution exactly when it belongs
+to the row span of the jet map, expressed invariantly as the range of the
+dual map. -/
+theorem endpointKillsJetKernel_iff_mem_range_dualMap
+    (jet : V →ₗ[K] W) (endpoint : V →ₗ[K] K) :
+    EndpointKillsJetKernel jet endpoint ↔
+      endpoint ∈ LinearMap.range jet.dualMap := by
+  rw [LinearMap.range_dualMap_eq_dualAnnihilator_ker,
+    Submodule.mem_dualAnnihilator]
+  simp only [EndpointKillsJetKernel, LinearMap.mem_ker]
+  rfl
+
+/-- Endpoint escape is equivalently the assertion that the endpoint functional
+is not a linear combination of the jet constraints.  This is the exact
+row-span obstruction that an affine/congruence construction must overcome. -/
+theorem endpointEscape_iff_not_mem_range_dualMap
+    (jet : V →ₗ[K] W) (endpoint : V →ₗ[K] K) :
+    EndpointEscape jet endpoint ↔
+      endpoint ∉ LinearMap.range jet.dualMap := by
+  rw [endpointEscape_iff_not_endpointKillsJetKernel,
+    endpointKillsJetKernel_iff_mem_range_dualMap]
+
 end EndpointEscape
+
+section BoxEndpoint
+
+variable {K α β : Type*} [Field K] [Fintype β]
+
+/-- Endpoint evaluation on a rectangular coefficient box.
+
+Think of `c a b` as the coefficient of an input monomial indexed by `a`
+and an exponential monomial indexed by `b`.  At the global endpoint
+`(x,y)=(0,1)`, only the distinguished zero-input row `a₀` survives, while
+every exponential monomial evaluates to one.  Thus the endpoint is the sum of
+that row. -/
+def boxEndpoint (a₀ : α) : (α → β → K) →ₗ[K] K where
+  toFun c := ∑ b, c a₀ b
+  map_add' c d := by
+    simp [Finset.sum_add_distrib]
+  map_smul' r c := by
+    simp [Finset.mul_sum]
+
+@[simp] theorem boxEndpoint_apply (a₀ : α) (c : α → β → K) :
+    boxEndpoint a₀ c = ∑ b, c a₀ b :=
+  rfl
+
+/-- As soon as the exponential block has one coefficient, the endpoint
+functional is surjective: a single coefficient in the distinguished row can
+realize any prescribed endpoint value. -/
+theorem boxEndpoint_surjective [Nonempty β] (a₀ : α) :
+    Function.Surjective (boxEndpoint (K := K) a₀) := by
+  classical
+  let b₀ : β := Classical.choice (inferInstance : Nonempty β)
+  intro y
+  refine ⟨Pi.single a₀ (Pi.single b₀ y), ?_⟩
+  simp [boxEndpoint, b₀]
+
+/-- In particular the box endpoint is a nonzero linear functional whenever
+the exponential block is nonempty. -/
+theorem boxEndpoint_ne_zero [Nonempty β] (a₀ : α) :
+    boxEndpoint (K := K) a₀ ≠ 0 := by
+  intro hzero
+  obtain ⟨c, hc⟩ := boxEndpoint_surjective (K := K) a₀ 1
+  rw [hzero, LinearMap.zero_apply] at hc
+  exact one_ne_zero hc.symm
+
+end BoxEndpoint
 
 section HomogeneousCounterexample
 
