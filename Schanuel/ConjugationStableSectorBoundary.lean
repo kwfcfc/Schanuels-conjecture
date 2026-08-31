@@ -8155,6 +8155,72 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_minpoly_terminalExp_p
   exact (Polynomial.eq_of_monic_of_dvd_of_natDegree_le
     (minpoly.monic hxint) hpmonic hdvd (hpdegree.trans hdegree.symm).le).symm
 
+/-- Every positive point of the terminal exponential orbit has nontrivial Pell coordinates over
+the analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.initialAnalytic_terminalExp_pow_pell_coordinates
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ m : ℕ, 0 < m →
+      ∃ b2 a d : A,
+        (b2 : ℂ) = u (Fin.last (n + 2)) ^ 2 ∧
+        d ≠ 0 ∧
+        a ^ 2 - d ^ 2 * b2 = 1 ∧
+        Complex.exp (u (Fin.last (n + 2))) ^ m =
+          (a : ℂ) + (d : ℂ) * u (Fin.last (n + 2)) ∧
+        (Complex.exp (u (Fin.last (n + 2))) ^ m)⁻¹ =
+          (a : ℂ) - (d : ℂ) * u (Fin.last (n + 2)) := by
+  dsimp only
+  intro htwo m hm
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  obtain ⟨σ, ⟨hσ, -, hy⟩, -⟩ :=
+    W.existsUnique_initialAnalytic_switch_of_finrank_two htwo
+  obtain ⟨p, hp, -⟩ :=
+    W.initialAnalytic_quadratic_normal_form_of_finrank_two htwo (yF ^ m)
+  have hp' : y ^ m = (p.1 : ℂ) + (p.2 : ℂ) * b := by
+    simpa [yF, y, b] using hp
+  have hd0 : p.2 ≠ 0 := by
+    intro hd
+    apply W.terminalExp_pow_not_mem_initialAnalytic_of_finrank_two htwo m hm
+    rw [hd] at hp'
+    have heq : y ^ m = (p.1 : ℂ) := by simpa using hp'
+    rw [heq]
+    exact p.1.property
+  have hact := W.initialAnalytic_nontrivial_apply_normal_form htwo σ hσ (yF ^ m) p hp
+  have hσpow : σ (yF ^ m) = (yF ^ m)⁻¹ := by
+    rw [map_pow, hy, inv_pow]
+  have hinv : (y ^ m)⁻¹ = (p.1 : ℂ) - (p.2 : ℂ) * b := by
+    have h := (congrArg ((↑) : F → ℂ) hσpow).symm.trans hact
+    simpa [yF, y, b] using h
+  have hb2A : b ^ 2 ∈ A := by
+    apply (show eigenvectorTerminalAnalyticRealCore u ≤ A from le_sup_right)
+    apply eigenvectorTerminalRealCore_le_analyticRealCore u
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert (b ^ 2) _)
+  let b2 : A := ⟨b ^ 2, hb2A⟩
+  have hpell : p.1 ^ 2 - p.2 ^ 2 * b2 = 1 := by
+    apply Subtype.ext
+    change (p.1 : ℂ) ^ 2 - (p.2 : ℂ) ^ 2 * b ^ 2 = 1
+    calc
+      (p.1 : ℂ) ^ 2 - (p.2 : ℂ) ^ 2 * b ^ 2 =
+          ((p.1 : ℂ) + (p.2 : ℂ) * b) *
+            ((p.1 : ℂ) - (p.2 : ℂ) * b) := by ring
+      _ = y ^ m * (y ^ m)⁻¹ := by rw [← hp', ← hinv]
+      _ = 1 := mul_inv_cancel₀ (pow_ne_zero m (Complex.exp_ne_zero b))
+  exact ⟨b2, p.1, p.2, rfl, hd0, hpell, hp', hinv⟩
+
 /-- Every nonidentity analytic-shadow deck transformation has an explicit discontinuity
 sequence at zero, without any quartic assumption. -/
 theorem PositiveEigenvectorTerminalWitness.exists_initialAnalytic_discontinuity_sequence

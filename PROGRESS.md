@@ -15802,3 +15802,6 @@ and injectivity of its positive reciprocal-trace sequence `(RQ111)` have likewis
 with only those three axioms.
 The exact Chebyshev recurrence for the reciprocal traces `(RQ112)` and containment of every term
 in the original square/trace real core `(RQ113)` have the same audit result.
+Every positive terminal exponential power has nonzero odd coordinate in the analytic-shadow
+quadratic normal form and satisfies the resulting internal Pell equation `(RQ114)`; this has
+likewise been audited with only those three axioms.
