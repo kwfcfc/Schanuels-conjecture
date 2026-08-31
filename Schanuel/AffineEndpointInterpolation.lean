@@ -163,8 +163,9 @@ def boxJetMap (jetCoeff : α → β → ι → K) :
   rfl
 
 /-- The standard coefficient vector supported on one box monomial. -/
-def boxBasis (a : α) (b : β) : α → β → K :=
-  Pi.single a (Pi.single b 1)
+noncomputable def boxBasis (a : α) (b : β) : α → β → K := by
+  classical
+  exact Pi.single a (Pi.single b 1)
 
 @[simp] theorem boxJetMap_boxBasis (jetCoeff : α → β → ι → K)
     (a : α) (b : β) (k : ι) :
@@ -172,14 +173,15 @@ def boxBasis (a : α) (b : β) : α → β → K :=
   classical
   simp [boxJetMap, boxBasis]
 
-@[simp] theorem boxEndpoint_boxBasis (a₀ a : α) (b : β) :
-    boxEndpoint (K := K) (β := β) a₀ (boxBasis (K := K) a b) =
-      if a₀ = a then 1 else 0 := by
+@[simp] theorem boxEndpoint_boxBasis_same (a : α) (b : β) :
+    boxEndpoint (K := K) (β := β) a (boxBasis (K := K) a b) = 1 := by
   classical
-  by_cases h : a₀ = a
-  · subst a
-    simp [boxEndpoint, boxBasis]
-  · simp [boxEndpoint, boxBasis, h]
+  simp [boxEndpoint, boxBasis]
+
+theorem boxEndpoint_boxBasis_of_ne {a₀ a : α} (b : β) (h : a₀ ≠ a) :
+    boxEndpoint (K := K) (β := β) a₀ (boxBasis (K := K) a b) = 0 := by
+  classical
+  simp [boxEndpoint, boxBasis, h]
 
 /-- Every finite rectangular coefficient family is the sum of its standard
 basis monomials. -/
