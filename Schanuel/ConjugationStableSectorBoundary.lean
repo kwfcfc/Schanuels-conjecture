@@ -7204,6 +7204,165 @@ theorem PositiveEigenvectorTerminalWitness.initialAnalytic_trace_norm_normal_for
     rw [hz, hact]
     ring
 
+/-- No positive integral power of the terminal exponential equals its inverse.  Otherwise the
+last input would again be a rational multiple of the standard period. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExp_pow_ne_inv
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) (m : ℕ) (hm : 0 < m) :
+    selectedExpInFull u (Fin.last (n + 2)) ^ m ≠
+      (selectedExpInFull u (Fin.last (n + 2)) ^ m)⁻¹ := by
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let F := generatedField u
+  intro heqF
+  have heq : y ^ m = (y ^ m)⁻¹ := congrArg ((↑) : F → ℂ) heqF
+  have hym0 : y ^ m ≠ 0 := pow_ne_zero m (Complex.exp_ne_zero b)
+  have hym2 : y ^ m * y ^ m = 1 := by
+    calc
+      y ^ m * y ^ m = y ^ m * (y ^ m)⁻¹ := congrArg (y ^ m * ·) heq
+      _ = 1 := mul_inv_cancel₀ hym0
+  have hexp : Complex.exp (2 * ((m : ℂ) * b)) = 1 := by
+    rw [show (2 : ℂ) * ((m : ℂ) * b) = (m : ℂ) * b + (m : ℂ) * b by ring,
+      Complex.exp_add, Complex.exp_nat_mul]
+    exact hym2
+  obtain ⟨k, hk⟩ := Complex.exp_eq_one_iff.mp hexp
+  have hk' : (2 : ℂ) * (m : ℂ) * b = (k : ℂ) * standardPeriod := by
+    simpa [standardPeriod, PeriodLogBoundary.period, mul_assoc] using hk
+  have hmQ : (m : ℚ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hm)
+  have hmC : (m : ℂ) ≠ 0 := by exact_mod_cast (Nat.ne_of_gt hm)
+  have hbformula : b =
+      (((((k : ℚ) / (2 * (m : ℚ))) : ℚ) : ℂ) * standardPeriod) := by
+    apply (mul_left_cancel₀ (mul_ne_zero (by norm_num : (2 : ℂ) ≠ 0) hmC))
+    calc
+      ((2 : ℂ) * (m : ℂ)) * b = (k : ℂ) * standardPeriod := hk'
+      _ = ((2 : ℂ) * (m : ℂ)) *
+          (((((k : ℚ) / (2 * (m : ℚ))) : ℚ) : ℂ) * standardPeriod) := by
+        push_cast
+        field_simp [hmQ]
+  apply W.last_not_mem_canonicalAnchor_span
+  change b ∈ Submodule.span ℚ (Set.range canonicalAnchor)
+  rw [hbformula]
+  have hperiod : standardPeriod ∈
+      Submodule.span ℚ (Set.range canonicalAnchor) :=
+    standardPeriod_mem_of_anchor_le _ le_rfl
+  change ((k : ℚ) / (2 * (m : ℚ))) • standardPeriod ∈
+    Submodule.span ℚ (Set.range canonicalAnchor)
+  exact (Submodule.span ℚ (Set.range canonicalAnchor)).smul_mem
+    ((k : ℚ) / (2 * (m : ℚ))) hperiod
+
+/-- In the degree-two branch every positive power of the terminal exponential remains outside the
+analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.terminalExp_pow_not_mem_initialAnalytic_of_finrank_two
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ m : ℕ, 0 < m →
+      Complex.exp (u (Fin.last (n + 2))) ^ m ∉ A := by
+  dsimp only
+  intro htwo m hm
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  obtain ⟨σ, hnow⟩ :=
+    (W.initialAnalytic_finrank_two_iff_nowhere_continuous).mp htwo
+  have hσ : σ ≠ 1 := by
+    intro hσ
+    subst σ
+    exact hnow 0 (by simpa using (continuousAt_id : ContinuousAt (id : F → F) 0))
+  have hy := W.galois_over_initialAnalytic_nontrivial_switch σ hσ |>.2
+  intro hymA
+  let ymA : A := ⟨Complex.exp (u (Fin.last (n + 2))) ^ m, hymA⟩
+  have hfix : σ (yF ^ m) = yF ^ m := by
+    calc
+      σ (yF ^ m) = σ (algebraMap A F ymA) := by rfl
+      _ = algebraMap A F ymA := σ.commutes ymA
+      _ = yF ^ m := by rfl
+  have hpow : σ (yF ^ m) = (yF ^ m)⁻¹ := by
+    rw [map_pow, hy, inv_pow]
+  exact W.terminalExp_pow_ne_inv m hm (hfix.symm.trans hpow)
+
+/-- Every positive power of the terminal exponential is a primitive generator of the same
+quadratic extension over the analytic shadow. -/
+theorem PositiveEigenvectorTerminalWitness.adjoin_terminalExp_pow_eq_lastExp
+    {n : ℕ} {u : Fin (n + 3) → ℂ}
+    (W : PositiveEigenvectorTerminalWitness u) :
+    let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+    let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+    let F := generatedField u
+    letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+    letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+    letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+    Module.finrank A F = 2 → ∀ m : ℕ, 0 < m →
+      IntermediateField.adjoin A
+          ({Complex.exp (u (Fin.last (n + 2))) ^ m} : Set ℂ) =
+        IntermediateField.adjoin A
+          ({Complex.exp (u (Fin.last (n + 2)))} : Set ℂ) := by
+  dsimp only
+  intro htwo m hm
+  let M := generatedField (Fin.init u) ⊔ eigenvectorTerminalRealCore u
+  let A := generatedField (Fin.init u) ⊔ eigenvectorTerminalAnalyticRealCore u
+  let F := generatedField u
+  letI : Algebra M A := terminalInitialRealToAnalyticAlgebra u
+  letI : Algebra A F := W.terminalInitialAnalyticToFullAlgebra
+  letI : Algebra M F := W.terminalInitialRealToFullAlgebra
+  let b := u (Fin.last (n + 2))
+  let y := Complex.exp b
+  let yF := selectedExpInFull u (Fin.last (n + 2))
+  let N : IntermediateField A ℂ := IntermediateField.adjoin A ({y ^ m} : Set ℂ)
+  obtain ⟨p, hp, -⟩ :=
+    W.initialAnalytic_quadratic_normal_form_of_finrank_two htwo (yF ^ m)
+  have hp' : y ^ m = (p.1 : ℂ) + (p.2 : ℂ) * b := by
+    simpa [yF, y, b] using hp
+  have hymnotA : y ^ m ∉ A :=
+    W.terminalExp_pow_not_mem_initialAnalytic_of_finrank_two htwo m hm
+  have hd0 : p.2 ≠ 0 := by
+    intro hd
+    apply hymnotA
+    rw [hd] at hp'
+    have heq : y ^ m = (p.1 : ℂ) := by simpa using hp'
+    rw [heq]
+    exact p.1.property
+  have hdC : (p.2 : ℂ) ≠ 0 := by
+    intro hd
+    apply hd0
+    apply Subtype.ext
+    exact hd
+  have hymN : y ^ m ∈ N :=
+    IntermediateField.subset_adjoin A _ (Set.mem_singleton _)
+  have haN : (p.1 : ℂ) ∈ N := by
+    simpa using IntermediateField.algebraMap_mem N p.1
+  have hdN : (p.2 : ℂ) ∈ N := by
+    simpa using IntermediateField.algebraMap_mem N p.2
+  have hbid : b = (y ^ m - (p.1 : ℂ)) / (p.2 : ℂ) := by
+    apply (eq_div_iff hdC).2
+    rw [hp']
+    ring
+  have hbN : b ∈ N := by
+    rw [hbid]
+    exact N.div_mem (N.sub_mem hymN haN) hdN
+  calc
+    IntermediateField.adjoin A ({y ^ m} : Set ℂ) =
+        IntermediateField.adjoin A ({b} : Set ℂ) := by
+      apply le_antisymm
+      · rw [IntermediateField.adjoin_le_iff]
+        rintro x (rfl : x = y ^ m)
+        exact (IntermediateField.adjoin A ({b} : Set ℂ)).pow_mem
+          W.terminalExp_mem_adjoin_lastInput_initialAnalytic m
+      · rw [IntermediateField.adjoin_le_iff]
+        rintro x (rfl : x = b)
+        exact hbN
+    _ = IntermediateField.adjoin A ({y} : Set ℂ) :=
+      W.adjoin_lastInput_eq_adjoin_lastExp_initialAnalytic
+
 /-- In every branch, each deck transformation over the analytic shadow preserves the genuine
 terminal exponential equation. -/
 theorem PositiveEigenvectorTerminalWitness.galois_over_initialAnalytic_exp_compatible

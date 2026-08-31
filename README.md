@@ -237,7 +237,8 @@ not presented as a solution of the full task.
   `y=α+δb`, `y⁻¹=α−δb`, with `α=(y+y⁻¹)/2` and `δ=c/(2b²)` in `A`.  Coordinate
   multiplication is `(a,d)(a′,d′)=(aa′+dd′b²,ad′+da′)`, and every element has exact switch trace
   `2a` and norm `a²−d²b²` in `A`.  The exponential coordinates form a nontrivial Pell point:
-  `α²−b²δ²=1`, with `δ≠0` and `α²≠1`.
+  `α²−b²δ²=1`, with `δ≠0` and `α²≠1`.  No positive power satisfies `y^m=y⁻ᵐ`; in degree two every
+  `y^m` remains outside `A` and primitively generates the same full field.
 - [`Schanuel/MinimalCounterexampleRationalBasis.lean`](./Schanuel/MinimalCounterexampleRationalBasis.lean)
   combines that result with rational-basis invariance: every rational hyperplane projection of
   a first failure has the same transcendence degree as the full family, which is algebraic over

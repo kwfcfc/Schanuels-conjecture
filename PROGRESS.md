@@ -15322,6 +15322,19 @@ For the exponential unit itself, the norm formula becomes a nontrivial Pell poin
 Thus the remaining analytic datum is an explicitly nonconstant norm-one unit on the quadratic
 conic attached to the nonsquare generator `b2`.
 
+The Pell orbit has no positive torsion collapse.  For every integer `m>0`,
+
+`y^m != (y^m)^(-1)`.                                           `(RQ105)`
+
+The proof again uses the exact exponential kernel: equality would put `b` in the rational period
+line, contradicting the anchor-span exclusion.  In the quadratic branch every such power remains
+outside the analytic shadow `(RQ106)` and is itself a primitive element:
+
+`A(y^m)=A(y)=L` for every `m>0`.                                `(RQ107)`
+
+Thus the actual exponential supplies an infinite, noncollapsing norm-one orbit, every positive
+point of which generates the entire residual sheet.
+
 Thus both the additive/multiplicative Galois averages and the complete fixed subfield of the
 residual sheet are explicit.  These identities sharpen the descent target but do not supply the
 missing automatic continuity.
@@ -15750,3 +15763,6 @@ The explicit quadratic coordinate multiplication law `(RQ102)` and arbitrary-ele
 trace/norm formulas `(RQ103)` have likewise been audited with only those three axioms.
 The nontrivial analytic-shadow Pell coordinates of the terminal exponential `(RQ104)` have the
 same audit result.
+Positive-power nondegeneracy `(RQ105)`, exclusion of every positive power from the degree-two
+analytic base `(RQ106)`, and primitive generation by each such power `(RQ107)` have likewise been
+audited with only those three axioms.
