@@ -91,6 +91,78 @@ theorem boxEndpointEscape_iff_not_mem_range_dualMap
         LinearMap.range (boxJetMap jetCoeff).dualMap :=
   endpointEscape_iff_not_mem_range_dualMap _ _
 
+/-- A dual certificate for failure of endpoint escape.  One linear functional
+on the jet-value space takes value one on every basis jet in the distinguished
+endpoint row and vanishes on every basis jet outside that row. -/
+def BoxJetDualCertificate (jetCoeff : α → β → ι → K) (a₀ : α) : Prop :=
+  ∃ φ : Module.Dual K (ι → K),
+    (∀ b, φ (jetCoeff a₀ b) = 1) ∧
+      ∀ a, a₀ ≠ a → ∀ b, φ (jetCoeff a b) = 0
+
+/-- The endpoint functional kills every homogeneous jet solution exactly when
+a dual certificate exists. -/
+theorem boxEndpointKillsJetKernel_iff_dualCertificate
+    (jetCoeff : α → β → ι → K) (a₀ : α) :
+    EndpointKillsJetKernel (boxJetMap jetCoeff)
+        (boxEndpoint (K := K) (β := β) a₀) ↔
+      BoxJetDualCertificate jetCoeff a₀ := by
+  rw [endpointKillsJetKernel_iff_mem_range_dualMap]
+  constructor
+  · intro h
+    rw [LinearMap.mem_range] at h
+    obtain ⟨φ, hφ⟩ := h
+    refine ⟨φ, ?_, ?_⟩
+    · intro b
+      calc
+        φ (jetCoeff a₀ b) =
+            (boxJetMap jetCoeff).dualMap φ
+              (boxBasis (K := K) a₀ b) := by simp
+        _ = boxEndpoint (K := K) (β := β) a₀
+              (boxBasis (K := K) a₀ b) := by rw [hφ]
+        _ = 1 := boxEndpoint_boxBasis_same (K := K) a₀ b
+    · intro a ha b
+      calc
+        φ (jetCoeff a b) =
+            (boxJetMap jetCoeff).dualMap φ
+              (boxBasis (K := K) a b) := by simp
+        _ = boxEndpoint (K := K) (β := β) a₀
+              (boxBasis (K := K) a b) := by rw [hφ]
+        _ = 0 := boxEndpoint_boxBasis_of_ne
+          (K := K) (β := β) (a₀ := a₀) (a := a) b ha
+  · rintro ⟨φ, hrow, hoff⟩
+    rw [LinearMap.mem_range]
+    refine ⟨φ, ?_⟩
+    apply linearMap_eq_of_boxBasis_eq
+    intro a b
+    by_cases ha : a₀ = a
+    · subst a
+      calc
+        (boxJetMap jetCoeff).dualMap φ
+              (boxBasis (K := K) a₀ b) =
+            φ (jetCoeff a₀ b) := by simp
+        _ = 1 := hrow b
+        _ = boxEndpoint (K := K) (β := β) a₀
+              (boxBasis (K := K) a₀ b) :=
+          (boxEndpoint_boxBasis_same (K := K) a₀ b).symm
+    · calc
+        (boxJetMap jetCoeff).dualMap φ
+              (boxBasis (K := K) a b) =
+            φ (jetCoeff a b) := by simp
+        _ = 0 := hoff a ha b
+        _ = boxEndpoint (K := K) (β := β) a₀
+              (boxBasis (K := K) a b) :=
+          (boxEndpoint_boxBasis_of_ne
+            (K := K) (β := β) (a₀ := a₀) (a := a) b ha).symm
+
+/-- Endpoint escape is equivalently the nonexistence of a dual certificate. -/
+theorem boxEndpointEscape_iff_no_dualCertificate
+    (jetCoeff : α → β → ι → K) (a₀ : α) :
+    EndpointEscape (boxJetMap jetCoeff)
+        (boxEndpoint (K := K) (β := β) a₀) ↔
+      ¬ BoxJetDualCertificate jetCoeff a₀ := by
+  rw [endpointEscape_iff_not_endpointKillsJetKernel,
+    boxEndpointKillsJetKernel_iff_dualCertificate]
+
 end BoxJets
 
 end
